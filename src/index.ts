@@ -22,7 +22,7 @@ export class Zilwrap {
     private contractAddress: string; // wrapper address
     private contract: Contract;
 
-    // const contract address
+
     constructor(network: Network, privateKey: string) {
         this.zilliqa = new Zilliqa(BLOCKCHAIN_URL[network]);
         this.zilliqa.wallet.addByPrivateKey(privateKey);
@@ -36,8 +36,38 @@ export class Zilwrap {
         this.contract = this.zilliqa.contracts.at(this.contractAddress);
     }
 
-    // wrap zil to token contract
-    // amount is in ZIL
+
+    /**
+     * Check Allowance
+     */
+    public checkAllowance() {
+        // TODO
+    }
+
+    /**
+     * Check Balance
+     */
+    // get wrapped tokens balance from contract
+    // returns wrapped tokens balance in Qa
+    public async checkBalance() {
+        try {
+            const state = await this.contract.getSubState("balances");
+            const hexWalletAddress = this.addHex(this.walletAddress);
+
+            if (state.balances[hexWalletAddress] === undefined) {
+                throw new Error("No wallet found");
+            }
+
+            return state.balances[hexWalletAddress];
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    /**
+     * Wrap $ZIL to particular token
+     * @param amount amount to be wrapped in ZIL
+     */
     public async wrapZil(amount: string):Promise<Transaction> {
         try {
             const amountQa = units.toQa(amount, units.Units.Zil);
@@ -70,9 +100,52 @@ export class Zilwrap {
         }
     }
 
+    /**
+     * Unwrap tokens and retrieve back $ZIL
+     */
+    public unwrapZil() {
+        // TODO
+        
+    }
+
+    /**
+     * Transfer
+     */
+    public transfer() {
+        // TODO
+    }
+
+    /**
+     * TransferFrom
+     */
+    public transferFrom() {
+        // TODO
+    }
+
+    /**
+     * IncreaseAllowance
+     */
+    public increaseAllowance() {
+        // TODO
+    }
+
+    /**
+     * Reduce Allowance
+     */
+    public reduceAllowance() {
+        // TODO
+    }
+
     public async getBalance(address: string) {
         const balance = await this.zilliqa.blockchain.getBalance(address);
         return balance.result;
+    }
+
+    private addHex(address: string): string {
+        if (address.startsWith('0x')) {
+            return address.toLowerCase();
+        }
+        return `0x${address}`;
     }
 
     private removeHex(address: string): string {

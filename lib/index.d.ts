@@ -15,7 +15,9 @@ export declare class Zilwrap {
     private contractAddress;
     private contract;
     constructor(network: Network, privateKey: string);
+    checkBalance(): Promise<any>;
     wrapZil(amount: string): Promise<Transaction>;
     getBalance(address: string): Promise<any>;
+    private addHex;
     private removeHex;
 }
