@@ -68,7 +68,7 @@ export class Zilwrap {
      * Wrap $ZIL to particular token
      * @param amount amount to be wrapped in ZIL
      */
-    public async wrapZil(amount: string):Promise<Transaction> {
+    public async wrap(amount: string):Promise<Transaction> {
         try {
             const amountQa = units.toQa(amount, units.Units.Zil);
 
@@ -102,10 +102,33 @@ export class Zilwrap {
 
     /**
      * Unwrap tokens and retrieve back $ZIL
+     * @param amount token amount to be unwrapped
      */
-    public unwrapZil() {
+    public async unwrap(tokenAmount: string):Promise<Transaction> {
         // TODO
-        
+        // if no amount burn all?
+        try {
+            const callTx = await this.contract.call(
+                'Burn',
+                [
+                    {
+                        vname: 'amount',
+                        type: 'Uint128',
+                        value: `${tokenAmount}`
+                    }
+                ],
+                {
+                    amount: new BN(0),
+                    ...this.txParams
+                },
+                33,
+                1000,
+                false,
+            );
+            return callTx;
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**

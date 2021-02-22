@@ -15,8 +15,40 @@ export declare class Zilwrap {
     private contractAddress;
     private contract;
     constructor(network: Network, privateKey: string);
+    /**
+     * Check Allowance
+     */
+    checkAllowance(): void;
+    /**
+     * Check Balance
+     */
     checkBalance(): Promise<any>;
-    wrapZil(amount: string): Promise<Transaction>;
+    /**
+     * Wrap $ZIL to particular token
+     * @param amount amount to be wrapped in ZIL
+     */
+    wrap(amount: string): Promise<Transaction>;
+    /**
+     * Unwrap tokens and retrieve back $ZIL
+     * @param amount token amount to be unwrapped
+     */
+    unwrap(tokenAmount: string): Promise<Transaction>;
+    /**
+     * Transfer
+     */
+    transfer(): void;
+    /**
+     * TransferFrom
+     */
+    transferFrom(): void;
+    /**
+     * IncreaseAllowance
+     */
+    increaseAllowance(): void;
+    /**
+     * Reduce Allowance
+     */
+    reduceAllowance(): void;
     getBalance(address: string): Promise<any>;
     private addHex;
     private removeHex;
