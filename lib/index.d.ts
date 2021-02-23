@@ -3,6 +3,9 @@
 import { BN, Long } from "@zilliqa-js/util";
 import { Transaction } from "@zilliqa-js/account";
 import { Network } from "./constants";
+/**
+ * TODO: sanitize method params (address, amount, etc)
+ */
 export declare type TxParams = {
     version: number;
     gasPrice: BN;
@@ -43,7 +46,7 @@ export declare class Zilwrap {
     /**
      * TransferFrom
      */
-    transferFrom(): void;
+    transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction>;
     /**
      * IncreaseAllowance
      */

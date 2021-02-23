@@ -5,6 +5,10 @@ import { Transaction } from "@zilliqa-js/account";
 import { getAddressFromPrivateKey, fromBech32Address } from '@zilliqa-js/crypto';
 import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT } from "./constants";
 
+/**
+ * TODO: sanitize method params (address, amount, etc) 
+ */
+
 export type TxParams = {
     version: number,
     gasPrice: BN,
@@ -152,7 +156,7 @@ export class Zilwrap {
      * @param recipient bech32, checksum, base16 address
      * @param amount actual number of tokens (not $ZIL!)
      */
-    public async transfer(recipient: string, amount: string) {
+    public async transfer(recipient: string, amount: string): Promise<Transaction> {
         try {
             const recipientAddress = this.sanitizeAddress(recipient);
             const transferAmountBN = new BN(amount);
@@ -193,9 +197,54 @@ export class Zilwrap {
 
     /**
      * TransferFrom
+     * Transfer using a allowance mechanism. Different implementation vs Transfer().
      */
-    public transferFrom() {
-        // TODO
+    public async transferFrom(sender: string, recipient: string, amount: string) {
+        try {
+            const senderAddress = this.sanitizeAddress(sender);
+            const recipientAddress = this.sanitizeAddress(recipient);
+
+            // TODO: check if in allowance map
+
+            const transferAmountBN = new BN(amount);
+            const senderTokenBalance = await this.checkBalance(senderAddress);
+            const senderTokenBalanceBN = new BN(senderTokenBalance);
+
+            if (senderTokenBalanceBN.lt(transferAmountBN)) {
+                throw new Error("Insufficient token balance to transfer");
+            }
+
+            const callTx = await this.contract.call(
+                'TransferFrom',
+                [
+                    {
+                        vname: 'from',
+                        type: 'ByStr20',
+                        value: `${senderAddress}`
+                    },
+                    {
+                        vname: 'to',
+                        type: 'ByStr20',
+                        value: `${recipientAddress}`
+                    },
+                    {
+                        vname: 'amount',
+                        type: 'Uint128',
+                        value: `${amount}`
+                    }
+                ],
+                {
+                    amount: new BN(0),
+                    ...this.txParams
+                },
+                33,
+                1000,
+                false
+            );
+            return callTx;
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
