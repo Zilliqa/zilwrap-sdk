@@ -1,8 +1,8 @@
 import { Zilliqa } from "@zilliqa-js/zilliqa";
-import { BN, Long, bytes, units } from "@zilliqa-js/util";
+import { BN, Long, bytes, units, validation } from "@zilliqa-js/util";
 import { Contract } from "@zilliqa-js/contract";
 import { Transaction } from "@zilliqa-js/account";
-import { getAddressFromPrivateKey } from '@zilliqa-js/crypto';
+import { getAddressFromPrivateKey, fromBech32Address } from '@zilliqa-js/crypto';
 import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT } from "./constants";
 
 export type TxParams = {
@@ -31,7 +31,7 @@ export class Zilwrap {
         this.txParams.gasPrice = new BN('2000000000000');
 
         console.log('Added account: %o', getAddressFromPrivateKey(privateKey));
-        this.walletAddress = this.removeHex(getAddressFromPrivateKey(privateKey));
+        this.walletAddress = getAddressFromPrivateKey(privateKey);
         this.contractAddress = WRAPPER_CONTRACT[network];
         this.contract = this.zilliqa.contracts.at(this.contractAddress);
     }
@@ -46,16 +46,26 @@ export class Zilwrap {
 
     /**
      * Check Balance
+     * @param address optional checksum wallet address to check for balance. If not supplied, checks the default wallet address
      */
     // get wrapped tokens balance from contract
     // returns wrapped tokens balance in Qa
-    public async checkBalance() {
+    public async checkBalance(address?: string) {
         try {
             const state = await this.contract.getSubState("balances");
-            const hexWalletAddress = this.addHex(this.walletAddress);
+            
+            let interestedWallet = "";
+            if (address === undefined) {
+                // no input, use default wallet
+                interestedWallet = this.walletAddress;
+            } else {
+                interestedWallet = address;
+            }
+
+            const hexWalletAddress = this.sanitizeAddress(interestedWallet);
 
             if (state.balances[hexWalletAddress] === undefined) {
-                throw new Error("No wallet found");
+                return '0';
             }
 
             return state.balances[hexWalletAddress];
@@ -73,14 +83,14 @@ export class Zilwrap {
             const amountQa = units.toQa(amount, units.Units.Zil);
 
             // check sufficient balance
-            const balance = await this.zilliqa.blockchain.getBalance(this.walletAddress);
+            const balance = await this.zilliqa.blockchain.getBalance(this.removeHex(this.walletAddress));
 
             if (balance.result === undefined) {
                 throw new Error("Could not get balance");
             }
 
             if (amountQa.gt(new BN(balance.result.balance))) {
-                throw new Error("Insufficient balance");
+                throw new Error("Insufficient $ZIL balance");
             }
 
             const callTx = await this.contract.call(
@@ -105,9 +115,15 @@ export class Zilwrap {
      * @param amount token amount to be unwrapped
      */
     public async unwrap(tokenAmount: string):Promise<Transaction> {
-        // TODO
-        // if no amount burn all?
         try {
+            const burnAmountBN = new BN(tokenAmount);
+            const tokenBalance = await this.checkBalance();
+            const tokenBalanceBN = new BN(tokenBalance);
+
+            if (tokenBalanceBN.lt(burnAmountBN)) {
+                throw new Error("Insufficient token balance to unwrap");
+            }
+
             const callTx = await this.contract.call(
                 'Burn',
                 [
@@ -133,9 +149,46 @@ export class Zilwrap {
 
     /**
      * Transfer
+     * @param recipient bech32, checksum, base16 address
+     * @param amount actual number of tokens (not $ZIL!)
      */
-    public transfer() {
-        // TODO
+    public async transfer(recipient: string, amount: string) {
+        try {
+            const recipientAddress = this.sanitizeAddress(recipient);
+            const transferAmountBN = new BN(amount);
+            const tokenBalance = await this.checkBalance();
+            const tokenBalanceBN = new BN(tokenBalance);
+
+            if (tokenBalanceBN.lt(transferAmountBN)) {
+                throw new Error("Insufficient token balance to transfer");
+            }
+
+            const callTx = await this.contract.call(
+                'Transfer',
+                [
+                    {
+                        vname: 'to',
+                        type: 'ByStr20',
+                        value: `${recipientAddress}`
+                    },
+                    {
+                        vname: 'amount',
+                        type: 'Uint128',
+                        value: `${amount}`
+                    }
+                ],
+                {
+                    amount: new BN(0),
+                    ...this.txParams
+                },
+                33,
+                1000,
+                false
+            );
+            return callTx;
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
@@ -176,5 +229,22 @@ export class Zilwrap {
             return address.replace('0x', '').toLowerCase();
         }
         return address.toLowerCase();
+    }
+
+    private sanitizeAddress(address: string): string {
+        if (validation.isBech32(address)) {
+            return fromBech32Address(address).toLowerCase();
+        }
+        
+        if (validation.isAddress(address)) {
+            return address.toLowerCase();
+        } else {
+            throw new Error('Not a valid address');
+        }
+    }
+
+    private sanitizeAmount(amount: string): string {
+        // if amount is not digit, errors will show up when converting to BN
+        return new BN(amount).toString();
     }
 }

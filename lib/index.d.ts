@@ -21,8 +21,9 @@ export declare class Zilwrap {
     checkAllowance(): void;
     /**
      * Check Balance
+     * @param address optional checksum wallet address to check for balance. If not supplied, checks the default wallet address
      */
-    checkBalance(): Promise<any>;
+    checkBalance(address?: string): Promise<any>;
     /**
      * Wrap $ZIL to particular token
      * @param amount amount to be wrapped in ZIL
@@ -35,8 +36,10 @@ export declare class Zilwrap {
     unwrap(tokenAmount: string): Promise<Transaction>;
     /**
      * Transfer
+     * @param recipient bech32, checksum, base16 address
+     * @param amount actual number of tokens (not $ZIL!)
      */
-    transfer(): void;
+    transfer(recipient: string, amount: string): Promise<Transaction>;
     /**
      * TransferFrom
      */
@@ -52,4 +55,6 @@ export declare class Zilwrap {
     getBalance(address: string): Promise<any>;
     private addHex;
     private removeHex;
+    private sanitizeAddress;
+    private sanitizeAmount;
 }
