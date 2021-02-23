@@ -47,7 +47,7 @@ export declare class Zilwrap {
     /**
      * TransferFrom
      * Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient.
-     * Approved spender (sender)'s allowance is deducted.
+     * Approved spender allowance is deducted.
      * Different implementation vs Transfer().
      */
     transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction>;

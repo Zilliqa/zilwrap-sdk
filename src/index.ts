@@ -231,7 +231,7 @@ export class Zilwrap {
     /**
      * TransferFrom
      * Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient.  
-     * Approved spender (sender)'s allowance is deducted.
+     * Approved spender allowance is deducted.
      * Different implementation vs Transfer().
      */
     public async transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction> {
@@ -295,8 +295,6 @@ export class Zilwrap {
      * @amount amount number of tokens to be increased as allowance for the approved spender
      */
     public async increaseAllowance(spender: string, amount: string): Promise<Transaction> {
-        // TODO
-        // TODO check allowance
         try {
             const spenderAddress = this.sanitizeAddress(spender);
 
@@ -334,7 +332,16 @@ export class Zilwrap {
     public async decreaseAllowance(spender: string, amount: string): Promise<Transaction> {
         // TODO check allowance
         try {
+            const tokenHolderAddress = this.sanitizeAddress(this.walletAddress);
             const spenderAddress = this.sanitizeAddress(spender);
+
+            const deductAmountBN = new BN(amount);
+            const spenderAllowance = await this.checkAllowance(tokenHolderAddress, spenderAddress);
+            const spenderAllowanceBN = new BN(spenderAllowance);
+
+            if (deductAmountBN.gt(spenderAllowanceBN)) {
+                throw new Error("Insufficient spender allowance to decrease");
+            }
 
             const callTx = await this.contract.call(
                 'DecreaseAllowance',
