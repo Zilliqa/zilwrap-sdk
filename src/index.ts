@@ -59,7 +59,9 @@ export class Zilwrap {
             const tokenHolderAddress = this.sanitizeAddress(holder);
             const state = await this.contract.getSubState("allowances", [tokenHolderAddress]);
 
-            if (state.allowances === undefined) {
+            if (state === null ||
+                state.allowances === undefined || 
+                state.allowances[tokenHolderAddress] == undefined) {
                 throw new Error("Could not get allowance");
             }
 
