@@ -18,6 +18,7 @@ export declare class Zilwrap {
     private contractAddress;
     private contract;
     constructor(network: Network, privateKey: string);
+    init(): Promise<void>;
     /**
      * Check Allowance
      */
@@ -58,9 +59,9 @@ export declare class Zilwrap {
      */
     increaseAllowance(spender: string, amount: string): Promise<Transaction>;
     /**
-     * Reduce Allowance
+     * Decrease Allowance
      */
-    reduceAllowance(): void;
+    decreaseAllowance(spender: string, amount: string): Promise<Transaction>;
     getBalance(address: string): Promise<any>;
     private addHex;
     private removeHex;

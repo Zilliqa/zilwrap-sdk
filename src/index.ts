@@ -3,7 +3,7 @@ import { BN, Long, bytes, units, validation } from "@zilliqa-js/util";
 import { Contract } from "@zilliqa-js/contract";
 import { Transaction } from "@zilliqa-js/account";
 import { getAddressFromPrivateKey, fromBech32Address } from '@zilliqa-js/crypto';
-import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT } from "./constants";
+import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT, GAS_PRICE } from "./constants";
 
 /**
  * TODO: sanitize method params (address, amount, etc) 
@@ -19,7 +19,7 @@ export class Zilwrap {
     private zilliqa: Zilliqa;
     private txParams: TxParams = {
         version: 99999,
-        gasPrice: new BN(0),
+        gasPrice: new BN(GAS_PRICE),
         gasLimit: Long.fromNumber(GAS_LIMIT),
     };
     private walletAddress: string;
@@ -32,12 +32,22 @@ export class Zilwrap {
         this.zilliqa.wallet.addByPrivateKey(privateKey);
 
         this.txParams.version = BLOCKCHAIN_VERSIONS[network];
-        this.txParams.gasPrice = new BN('2000000000000');
 
         console.log('Added account: %o', getAddressFromPrivateKey(privateKey));
         this.walletAddress = getAddressFromPrivateKey(privateKey);
         this.contractAddress = WRAPPER_CONTRACT[network];
         this.contract = this.zilliqa.contracts.at(this.contractAddress);
+    }
+
+    // set current gas price
+    public async init() {
+        if (this.txParams.gasPrice.isZero()) {
+            const minimumGasPrice = await this.zilliqa.blockchain.getMinimumGasPrice();
+            if (!minimumGasPrice.result) {
+                throw new Error("Could not get gas price");
+            }
+            this.txParams.gasPrice = new BN(minimumGasPrice.result);
+        }
     }
 
 
@@ -67,8 +77,10 @@ export class Zilwrap {
             }
 
             const hexWalletAddress = this.sanitizeAddress(interestedWallet);
+            console.log("check balance: %o", hexWalletAddress);
+            // console.log("state balances: %o", state.balances);
 
-            if (state.balances[hexWalletAddress] === undefined) {
+            if (state.balances === undefined || state.balances[hexWalletAddress] === undefined) {
                 return '0';
             }
 
@@ -197,7 +209,9 @@ export class Zilwrap {
 
     /**
      * TransferFrom
-     * Transfer using a allowance mechanism. Different implementation vs Transfer().
+     * Transfer using a allowance mechanism; allowing an approved spender (sender) to transfer tokens from another user wallet to the recipient.  
+     * Approved spender (sender)'s allowance is deducted.
+     * Different implementation vs Transfer().
      */
     public async transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction> {
         try {
@@ -251,7 +265,7 @@ export class Zilwrap {
      * IncreaseAllowance
      * 
      * Increase the allowance of an approved spender over the caller tokens. 
-     * Only token owner allowed to invoke.
+     * Only token holder allowed to invoke.
      * @param spender address of the designated approved spender in bech32/checksum/base16 forms
      * @amount amount number of tokens to be increased as allowance for the approved spender
      */

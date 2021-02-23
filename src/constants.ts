@@ -22,8 +22,9 @@ export const BLOCKCHAIN_VERSIONS: { [key in Networks]: number } = {
 
 export const WRAPPER_CONTRACT: { [key in Networks]: string } = {
     [Network.Mainnet]: '',
-    [Network.Testnet]: '',
+    [Network.Testnet]: 'zil1r9lexrfs44555yj8t0tuyjk8z3an0h4dv2qv2l',
     [Network.Isolated]: 'zil17qh89yvllqt63dwd4hexx758kcw8lu75z3hzzf',
 }
 
-export const GAS_LIMIT = 30000;
+export const GAS_LIMIT = 25000;
+export const GAS_PRICE = 2000000000;
