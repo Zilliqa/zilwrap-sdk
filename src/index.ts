@@ -54,8 +54,27 @@ export class Zilwrap {
     /**
      * Check Allowance
      */
-    public checkAllowance() {
-        // TODO
+    public async checkAllowance(holder: string, approvedSpender?: string) {
+        try {
+            const tokenHolderAddress = this.sanitizeAddress(holder);
+            const state = await this.contract.getSubState("allowances", [tokenHolderAddress]);
+
+            if (state.allowances === undefined) {
+                throw new Error("Could not get allowance");
+            }
+
+            if (approvedSpender === undefined) {
+                return state.allowances[tokenHolderAddress];
+            } else {
+                const approvedSpenderAddress = this.sanitizeAddress(approvedSpender);
+                if (state.allowances[tokenHolderAddress][approvedSpenderAddress] === undefined) {
+                    return '0';
+                }
+                return state.allowances[tokenHolderAddress][approvedSpenderAddress];
+            }
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
@@ -209,7 +228,7 @@ export class Zilwrap {
 
     /**
      * TransferFrom
-     * Transfer using a allowance mechanism; allowing an approved spender (sender) to transfer tokens from another user wallet to the recipient.  
+     * Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient.  
      * Approved spender (sender)'s allowance is deducted.
      * Different implementation vs Transfer().
      */
@@ -217,15 +236,19 @@ export class Zilwrap {
         try {
             const senderAddress = this.sanitizeAddress(sender);
             const recipientAddress = this.sanitizeAddress(recipient);
+            const spenderAddress = this.sanitizeAddress(this.walletAddress);
 
-            // TODO: check if in allowance map
-
+            // check allowance
+            // sender is token holder
+            // the one invoking is the approved spender
             const transferAmountBN = new BN(amount);
-            const senderTokenBalance = await this.checkBalance(senderAddress);
-            const senderTokenBalanceBN = new BN(senderTokenBalance);
+            const spenderAllowance = await this.checkAllowance(sender, spenderAddress);
+            const spenderAllowanceBN = new BN(spenderAllowance);
 
-            if (senderTokenBalanceBN.lt(transferAmountBN)) {
-                throw new Error("Insufficient token balance to transfer");
+            console.log("spender allowance: %o", spenderAllowance);
+
+            if (spenderAllowanceBN.lt(transferAmountBN)) {
+                throw new Error("Insufficient allowance to initiate transfer on behalf of token holder");
             }
 
             const callTx = await this.contract.call(

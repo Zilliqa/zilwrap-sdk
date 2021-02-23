@@ -22,7 +22,7 @@ export declare class Zilwrap {
     /**
      * Check Allowance
      */
-    checkAllowance(): void;
+    checkAllowance(holder: string, approvedSpender?: string): Promise<any>;
     /**
      * Check Balance
      * @param address optional checksum wallet address to check for balance. If not supplied, checks the default wallet address
@@ -46,14 +46,16 @@ export declare class Zilwrap {
     transfer(recipient: string, amount: string): Promise<Transaction>;
     /**
      * TransferFrom
-     * Transfer using a allowance mechanism. Different implementation vs Transfer().
+     * Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient.
+     * Approved spender (sender)'s allowance is deducted.
+     * Different implementation vs Transfer().
      */
     transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction>;
     /**
      * IncreaseAllowance
      *
      * Increase the allowance of an approved spender over the caller tokens.
-     * Only token owner allowed to invoke.
+     * Only token holder allowed to invoke.
      * @param spender address of the designated approved spender in bech32/checksum/base16 forms
      * @amount amount number of tokens to be increased as allowance for the approved spender
      */
