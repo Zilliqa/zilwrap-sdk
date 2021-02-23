@@ -199,7 +199,7 @@ export class Zilwrap {
      * TransferFrom
      * Transfer using a allowance mechanism. Different implementation vs Transfer().
      */
-    public async transferFrom(sender: string, recipient: string, amount: string) {
+    public async transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction> {
         try {
             const senderAddress = this.sanitizeAddress(sender);
             const recipientAddress = this.sanitizeAddress(recipient);
@@ -249,16 +249,80 @@ export class Zilwrap {
 
     /**
      * IncreaseAllowance
+     * 
+     * Increase the allowance of an approved spender over the caller tokens. 
+     * Only token owner allowed to invoke.
+     * @param spender address of the designated approved spender in bech32/checksum/base16 forms
+     * @amount amount number of tokens to be increased as allowance for the approved spender
      */
-    public increaseAllowance() {
+    public async increaseAllowance(spender: string, amount: string): Promise<Transaction> {
         // TODO
+        // TODO check allowance
+        try {
+            const spenderAddress = this.sanitizeAddress(spender);
+
+            const callTx = await this.contract.call(
+                'IncreaseAllowance',
+                [
+                    {
+                        vname: 'spender',
+                        type: 'ByStr20',
+                        value: `${spenderAddress}`
+                    },
+                    {
+                        vname: 'amount',
+                        type: 'Uint128',
+                        value: `${amount}`
+                    },
+                ],
+                {
+                    amount: new BN(0),
+                    ...this.txParams
+                },
+                33,
+                1000,
+                false
+            );
+            return callTx;
+        } catch (err) {
+            throw err;
+        }
     }
 
     /**
-     * Reduce Allowance
+     * Decrease Allowance
      */
-    public reduceAllowance() {
-        // TODO
+    public async decreaseAllowance(spender: string, amount: string): Promise<Transaction> {
+        // TODO check allowance
+        try {
+            const spenderAddress = this.sanitizeAddress(spender);
+
+            const callTx = await this.contract.call(
+                'DecreaseAllowance',
+                [
+                    {
+                        vname: 'spender',
+                        type: 'ByStr20',
+                        value: `${spenderAddress}`
+                    },
+                    {
+                        vname: 'amount',
+                        type: 'Uint128',
+                        value: `${amount}`
+                    },
+                ],
+                {
+                    amount: new BN(0),
+                    ...this.txParams
+                },
+                33,
+                1000,
+                false
+            );
+            return callTx;
+        } catch (err) {
+            throw err;
+        }
     }
 
     public async getBalance(address: string) {
