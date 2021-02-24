@@ -1,8 +1,8 @@
 /// <reference types="bn.js" />
 /// <reference types="long" />
-import { BN, Long } from "@zilliqa-js/util";
-import { Transaction } from "@zilliqa-js/account";
-import { Network } from "./constants";
+import { BN, Long } from '@zilliqa-js/util';
+import { Transaction } from '@zilliqa-js/account';
+import { Network } from './constants';
 /**
  * TODO: sanitize method params (address, amount, etc)
  */
