@@ -39,9 +39,8 @@ main();
 ```
 
 ## ZRC2 Wrapper Contract
-asdasd
+The ZRC2 contract locks $ZIL and returns a ZRC2 compliance token to the user. If the user wishes to unwrap, the ZRC2 contract would deduct the ZRC2 tokens and returns the locked $ZIL.
 
-### Allowable Mechanism
 
 ## API Documentation
 
@@ -72,7 +71,7 @@ await zilwrap.init(); // always after the new Zilwrap object
 
 ### `checkAllowance(holder: string, approvedSpender?: string): string`
 
-Retrieves the allowable tokens available for a list of approved spender or a particular approved spender. Refer to the ZRC2 contract section for more details about the allowable mechanism.
+Retrieves the allowable tokens available for a list of approved spender or a particular approved spender.
 
 **Parameters**
 - `holder`: `string` - The token holder address in either bech32/checksum/base16 format. 
