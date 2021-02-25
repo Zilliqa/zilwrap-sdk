@@ -18,7 +18,7 @@
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { BN, Long, bytes, units, validation } from '@zilliqa-js/util';
 import { Contract } from '@zilliqa-js/contract';
-import { Transaction } from '@zilliqa-js/account';
+import { Transaction, TxReceipt } from '@zilliqa-js/account';
 import { getAddressFromPrivateKey, fromBech32Address } from '@zilliqa-js/crypto';
 import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT, GAS_PRICE } from './constants';
 
@@ -120,7 +120,7 @@ export class Zilwrap {
    * Wrap $ZIL to particular token
    * @param amount amount to be wrapped in ZIL
    */
-  public async wrap(amount: string): Promise<Transaction> {
+  public async wrap(amount: string): Promise<TxReceipt | undefined> {
     const amountQa = units.toQa(amount, units.Units.Zil);
 
     // check sufficient balance
@@ -145,7 +145,9 @@ export class Zilwrap {
       1000,
       false,
     );
-    return callTx;
+
+    return callTx.getReceipt();
+    
   }
 
   /**
@@ -186,7 +188,7 @@ export class Zilwrap {
    * @param recipient bech32, checksum, base16 address
    * @param amount actual number of tokens (not $ZIL!)
    */
-  public async transfer(recipient: string, amount: string): Promise<Transaction> {
+  public async transfer(recipient: string, amount: string): Promise<TxReceipt | undefined> {
     const recipientAddress = this.sanitizeAddress(recipient);
     const transferAmountBN = new BN(amount);
     const tokenBalance = await this.checkBalance();
@@ -218,7 +220,7 @@ export class Zilwrap {
       1000,
       false,
     );
-    return callTx;
+    return callTx.getReceipt();
   }
 
   /**
@@ -227,7 +229,7 @@ export class Zilwrap {
    * Approved spender allowance is deducted.
    * Different implementation vs Transfer().
    */
-  public async transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction> {
+  public async transferFrom(sender: string, recipient: string, amount: string): Promise<TxReceipt | undefined> {
     const senderAddress = this.sanitizeAddress(sender);
     const recipientAddress = this.sanitizeAddress(recipient);
     const spenderAddress = this.sanitizeAddress(this.walletAddress);
@@ -272,7 +274,7 @@ export class Zilwrap {
       1000,
       false,
     );
-    return callTx;
+    return callTx.getReceipt();
   }
 
   /**
@@ -283,7 +285,7 @@ export class Zilwrap {
    * @param spender address of the designated approved spender in bech32/checksum/base16 forms
    * @amount amount number of tokens to be increased as allowance for the approved spender
    */
-  public async increaseAllowance(spender: string, amount: string): Promise<Transaction> {
+  public async increaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined> {
     const spenderAddress = this.sanitizeAddress(spender);
 
     const callTx = await this.contract.call(
@@ -308,13 +310,13 @@ export class Zilwrap {
       1000,
       false,
     );
-    return callTx;
+    return callTx.getReceipt();
   }
 
   /**
    * Decrease Allowance
    */
-  public async decreaseAllowance(spender: string, amount: string): Promise<Transaction> {
+  public async decreaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined> {
     // TODO check allowance
     const tokenHolderAddress = this.sanitizeAddress(this.walletAddress);
     const spenderAddress = this.sanitizeAddress(spender);
@@ -349,12 +351,8 @@ export class Zilwrap {
       1000,
       false,
     );
-    return callTx;
-  }
-
-  public async getBalance(address: string) {
-    const balance = await this.zilliqa.blockchain.getBalance(address);
-    return balance.result;
+    
+    return callTx.getReceipt();
   }
 
   private addHex(address: string): string {
@@ -372,15 +370,19 @@ export class Zilwrap {
   }
 
   private sanitizeAddress(address: string): string {
-    if (validation.isBech32(address)) {
-      return fromBech32Address(address).toLowerCase();
+    if (address) {
+      if (validation.isBech32(address)) {
+        return fromBech32Address(address).toLowerCase();
+      }
+  
+      if (validation.isAddress(address)) {
+        return address.toLowerCase();
+      } else {
+        throw new Error('Not a valid address');
+      }
     }
-
-    if (validation.isAddress(address)) {
-      return address.toLowerCase();
-    } else {
-      throw new Error('Not a valid address');
-    }
+    
+    throw new Error("Address is empty");
   }
 
   private sanitizeAmount(amount: string): string {

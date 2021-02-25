@@ -1,7 +1,7 @@
 /// <reference types="bn.js" />
 /// <reference types="long" />
 import { BN, Long } from '@zilliqa-js/util';
-import { Transaction } from '@zilliqa-js/account';
+import { Transaction, TxReceipt } from '@zilliqa-js/account';
 import { Network } from './constants';
 /**
  * TODO: sanitize method params (address, amount, etc)
@@ -32,7 +32,7 @@ export declare class Zilwrap {
      * Wrap $ZIL to particular token
      * @param amount amount to be wrapped in ZIL
      */
-    wrap(amount: string): Promise<Transaction>;
+    wrap(amount: string): Promise<TxReceipt | undefined>;
     /**
      * Unwrap tokens and retrieve back $ZIL
      * @param amount token amount to be unwrapped
@@ -43,14 +43,14 @@ export declare class Zilwrap {
      * @param recipient bech32, checksum, base16 address
      * @param amount actual number of tokens (not $ZIL!)
      */
-    transfer(recipient: string, amount: string): Promise<Transaction>;
+    transfer(recipient: string, amount: string): Promise<TxReceipt | undefined>;
     /**
      * TransferFrom
      * Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient.
      * Approved spender allowance is deducted.
      * Different implementation vs Transfer().
      */
-    transferFrom(sender: string, recipient: string, amount: string): Promise<Transaction>;
+    transferFrom(sender: string, recipient: string, amount: string): Promise<TxReceipt | undefined>;
     /**
      * IncreaseAllowance
      *
@@ -59,12 +59,11 @@ export declare class Zilwrap {
      * @param spender address of the designated approved spender in bech32/checksum/base16 forms
      * @amount amount number of tokens to be increased as allowance for the approved spender
      */
-    increaseAllowance(spender: string, amount: string): Promise<Transaction>;
+    increaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined>;
     /**
      * Decrease Allowance
      */
-    decreaseAllowance(spender: string, amount: string): Promise<Transaction>;
-    getBalance(address: string): Promise<any>;
+    decreaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined>;
     private addHex;
     private removeHex;
     private sanitizeAddress;
