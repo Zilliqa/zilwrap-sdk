@@ -6,6 +6,11 @@ import { Network } from './constants';
 /**
  * TODO: sanitize method params (address, amount, etc)
  */
+export declare type Settings = {
+    contractAddress?: string;
+    gasPrice?: number;
+    gasLimit?: number;
+};
 export declare type TxParams = {
     version: number;
     gasPrice: BN;
@@ -17,7 +22,7 @@ export declare class Zilwrap {
     private walletAddress;
     private contractAddress;
     private contract;
-    constructor(network: Network, privateKey: string);
+    constructor(network: Network, privateKey: string, settings?: Settings);
     init(): Promise<void>;
     /**
      * Check Allowance

@@ -26,6 +26,12 @@ import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIM
  * TODO: sanitize method params (address, amount, etc)
  */
 
+export type Settings = {
+  contractAddress?: string;
+  gasPrice?: number;
+  gasLimit?: number;
+};
+
 export type TxParams = {
   version: number;
   gasPrice: BN;
@@ -43,7 +49,7 @@ export class Zilwrap {
   private contractAddress: string; // wrapper address
   private contract: Contract;
 
-  constructor(network: Network, privateKey: string) {
+  constructor(network: Network, privateKey: string, settings?: Settings) {
     this.zilliqa = new Zilliqa(BLOCKCHAIN_URL[network]);
     this.zilliqa.wallet.addByPrivateKey(privateKey);
 
@@ -52,6 +58,20 @@ export class Zilwrap {
     console.log('Added account: %o', getAddressFromPrivateKey(privateKey));
     this.walletAddress = getAddressFromPrivateKey(privateKey);
     this.contractAddress = WRAPPER_CONTRACT[network];
+
+    // override default settings
+    if (settings) {
+      if (settings.contractAddress && this.sanitizeAddress(settings.contractAddress)) {
+        this.contractAddress = settings.contractAddress;
+      }
+      if (settings.gasPrice && settings.gasPrice > 0) {
+        this.txParams.gasPrice = new BN(settings.gasPrice);
+      }
+      if (settings.gasLimit && settings.gasLimit > 0) {
+        this.txParams.gasLimit = Long.fromNumber(settings.gasLimit);
+      }
+    }
+
     this.contract = this.zilliqa.contracts.at(this.contractAddress);
   }
 

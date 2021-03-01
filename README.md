@@ -1,5 +1,8 @@
 # zilwrap-sdk
 
+## Introduction - ZRC2 Wrapper Contract
+The ZRC2 contract locks $ZIL and returns a ZRC2 compliance token to the user. If the user wishes to unwrap, the ZRC2 contract would deduct the ZRC2 tokens and returns the locked $ZIL.
+
 ## Getting Started
 ```
 npm install
@@ -38,10 +41,7 @@ async function main() {
 main();
 ```
 
-## ZRC2 Wrapper Contract
-The ZRC2 contract locks $ZIL and returns a ZRC2 compliance token to the user. If the user wishes to unwrap, the ZRC2 contract would deduct the ZRC2 tokens and returns the locked $ZIL.
-
 
 ## API Documentation
 
-Refer to [here](doc/api.md) for API details.
+Refer to [API Documentation](doc/api.md) for methods details.

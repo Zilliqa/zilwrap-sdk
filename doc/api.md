@@ -20,7 +20,7 @@
 
 ### constructor
 
-**new Zilwrap(`network`:`Network`, `privateKey`: `string`)**: `Zilwrap`
+- **new Zilwrap(`network`:`Network`, `privateKey`: `string`, `settings?`: `Settings`)**: `Zilwrap`
 
 Initialize a new Zilwrap object with a default wallet.
 
@@ -30,9 +30,36 @@ Initialize a new Zilwrap object with a default wallet.
 | ---- | ---- | ----------- |
 | `network` | Network | blockchain network, available options: `Network.Mainnet`, `Network.Testnet`. |
 | `privateKey` | string | user's wallet private key to interact with. |
+| `settings` (optional) | Settings | Override the default settings for the wrapper contract address, gas price or gas limit. See 'Usage' section for more details. |
+
+```
+settings = {
+  contractAddress?: string,
+  gasPrice?: number,
+  gasLimit: number
+}
+```
 
 **Returns**
+
 `Zilwrap` - The main Zilwrap object for interaction.
+
+**Usage**
+```
+// without optional settings
+const zilwrap = new Zilwrap(Network.Testnet, 'private_key');
+
+// with optional settings
+// only declare those fields that you wish to override
+
+const settings = {
+  contractAddress: "zil101234567890123456789012345678901234567",
+  gasPrice: 2000000000, // in Qa
+  gasLimit: 25000
+}
+
+const zilwrap = new Zilwrap(Network.Testnet, 'private_key', settings);
+```
 
 ## Methods
 
@@ -59,7 +86,7 @@ ___
 
 ### checkAllowance
 
-**checkAllowance(`holder`: `string`, `approvedSpender?`: `string`)**: `string`
+- **checkAllowance(`holder`: `string`, `approvedSpender?`: `string`)**: `string`
 
 Retrieves the allowable tokens available for a list of approved spender or a particular approved spender.
 
@@ -71,9 +98,11 @@ Retrieves the allowable tokens available for a list of approved spender or a par
 | `approvedSpender` (optional) | string | approved spender address in either bech32/checksum/base16 format. |
 
 **Returns**
+
 `string` - if the approved spender address is not specified, the entire JSON mapping of approved spender-allowances for the token holder is returned. Otherwise, only the approved spender's allowance is returned.
 
 **Usage**
+
 *With approved spender*
 ```
 const result = zilwrap.checkAllowance("0x99f9d482abbdc5f05272a3c34a77e5933bb1c615", "0x13aa1c29698008e78801702be8a43527813ce892");
@@ -101,7 +130,7 @@ ___
 
 ### checkBalance
 
-**checkBalance(`address?`: `string`)**: `string`
+- **checkBalance(`address?`: `string`)**: `string`
 
 Retrieves the wrapped token amount within the contract.
 
@@ -112,9 +141,11 @@ Retrieves the wrapped token amount within the contract.
 | `address` (optional) | string | token holder address in either bech32/checksum/base16 format. |
 
 **Returns**
+
 `string` - Returns a string representation of the token amount. If the address is not specified, the default wallet address is used to query.
 
 **Usage**
+
 *With address*
 ```
 const result = zilwrap.checkBalance("0x99f9d482abbdc5f05272a3c34a77e5933bb1c615");
@@ -138,7 +169,7 @@ ___
 
 ### wrap
 
-**wrap(`amount`: `string`)**: `Promise<TxReceipt | undefined>`
+- **wrap(`amount`: `string`)**: `Promise<TxReceipt | undefined>`
 
 Wrap $ZIL to a ZRC2 token.
 
@@ -149,6 +180,7 @@ Wrap $ZIL to a ZRC2 token.
 | `amount` | string | amount in $ZIL to "convert" it into a ZRC2 token. |
 
 **Returns**
+
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**
@@ -160,7 +192,7 @@ ___
 
 ### unwrap
 
-**unwrap(`tokenAmount`: `string`)**: `Promise<TxReceipt | undefined>`
+- **unwrap(`tokenAmount`: `string`)**: `Promise<TxReceipt | undefined>`
 
 Unwrap ZRC2 token to $ZIL.
 
@@ -171,6 +203,7 @@ Unwrap ZRC2 token to $ZIL.
 | `tokenAmount` | string | number of ZRC2 tokens to be converted to $ZIL. |
 
 **Returns**
+
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**
@@ -182,7 +215,7 @@ ___
 
 ### transfer
 
-**transfer(`recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
+- **transfer(`recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
 
 Transfer the ZRC2 tokens to another wallet.
 
@@ -194,6 +227,7 @@ Transfer the ZRC2 tokens to another wallet.
 | `amount` | string | number of ZRC2 tokens to transfer |
 
 **Returns**
+
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**
@@ -205,7 +239,7 @@ ___
 
 ### transferFrom
 
-**transferFrom(`sender`: `string`, `recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
+- **transferFrom(`sender`: `string`, `recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
 
 Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient. Approved spender allowance is deducted.
 
@@ -220,6 +254,7 @@ Transfer using a allowance mechanism; allowing an approved spender to transfer t
 | `amount` | string | number of ZRC2 tokens to transfer |
 
 **Returns**
+
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**
@@ -245,7 +280,7 @@ ___
 
 ### increaseAllowance
 
-**ncreaseAllowance(`spender`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
+- **increaseAllowance(`spender`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
 
 Increase the allowance of an approved spender over the caller tokens. Only the token holder is allowed to invoke.
 
@@ -257,6 +292,7 @@ Increase the allowance of an approved spender over the caller tokens. Only the t
 | `amount` | string | number of ZRC2 tokens as allowance for the approved spender. |
 
 **Returns**
+
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**
@@ -269,7 +305,7 @@ ___
 
 ### decreaseAllowance
 
-**decreaseAllownce(`spender`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
+- **decreaseAllownce(`spender`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
 
 Decrease the allowance of an approved spender. Only the token holder is allowed to invoke.
 
@@ -281,6 +317,7 @@ Decrease the allowance of an approved spender. Only the token holder is allowed 
 | `amount` | string | number of ZRC2 tokens allowance to deduct from the approved spender. |
 
 **Returns**
+
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**

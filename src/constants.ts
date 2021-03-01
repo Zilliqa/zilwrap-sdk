@@ -40,7 +40,7 @@ export const BLOCKCHAIN_VERSIONS: { [key in Networks]: number } = {
 export const WRAPPER_CONTRACT: { [key in Networks]: string } = {
   [Network.Mainnet]: '',
   [Network.Testnet]: 'zil1r9lexrfs44555yj8t0tuyjk8z3an0h4dv2qv2l',
-  [Network.Isolated]: 'zil17qh89yvllqt63dwd4hexx758kcw8lu75z3hzzf',
+  [Network.Isolated]: 'zil1ymj29yuw7hxjm4yu47l776799zwgs9ttrep22c',
 };
 
 export const GAS_LIMIT = 25000;
