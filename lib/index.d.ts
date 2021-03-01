@@ -1,7 +1,7 @@
 /// <reference types="bn.js" />
 /// <reference types="long" />
 import { BN, Long } from '@zilliqa-js/util';
-import { Transaction, TxReceipt } from '@zilliqa-js/account';
+import { TxReceipt } from '@zilliqa-js/account';
 import { Network } from './constants';
 /**
  * TODO: sanitize method params (address, amount, etc)
@@ -42,7 +42,7 @@ export declare class Zilwrap {
      * Unwrap tokens and retrieve back $ZIL
      * @param amount token amount to be unwrapped
      */
-    unwrap(tokenAmount: string): Promise<Transaction>;
+    unwrap(tokenAmount: string): Promise<TxReceipt | undefined>;
     /**
      * Transfer
      * @param recipient bech32, checksum, base16 address

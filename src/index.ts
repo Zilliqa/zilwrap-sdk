@@ -174,7 +174,7 @@ export class Zilwrap {
    * Unwrap tokens and retrieve back $ZIL
    * @param amount token amount to be unwrapped
    */
-  public async unwrap(tokenAmount: string): Promise<Transaction> {
+  public async unwrap(tokenAmount: string): Promise<TxReceipt | undefined> {
     const burnAmountBN = new BN(tokenAmount);
     const tokenBalance = await this.checkBalance();
     const tokenBalanceBN = new BN(tokenBalance);
@@ -200,7 +200,7 @@ export class Zilwrap {
       1000,
       false,
     );
-    return callTx;
+    return callTx.getReceipt();
   }
 
   /**

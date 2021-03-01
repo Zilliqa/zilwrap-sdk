@@ -183,8 +183,15 @@ Wrap $ZIL to a ZRC2 token.
 
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
+**Usage**
+```
+await zilwrap.wrap("10"); // wrap 10 $ZIL
+```
+
+**Sample Response**
+
 <details>
-  <summary>Show Response</summary>
+  <summary>Show</summary>
   <p>
 
   ```json
@@ -276,11 +283,6 @@ Wrap $ZIL to a ZRC2 token.
   </p>
 </details>
 
-**Usage**
-```
-await zilwrap.wrap("10"); // wrap 10 $ZIL
-```
-
 ___
 
 ### unwrap
@@ -304,6 +306,59 @@ Unwrap ZRC2 token to $ZIL.
 await zilwrap.unwrap("10000000000000") // unwrapping the equivalent of 10 $ZI
 ```
 
+**Sample Response**
+
+<details>
+  <summary>Show</summary>
+  <p>
+
+  ```json
+  {
+      "accepted": false,
+      "cumulative_gas": 425,
+      "epoch_num": "2477623",
+      "event_logs": [
+          {
+              "_eventname": "Burnt",
+              "address": "0x197f930d30ad694a12475bd7c24ac7147b37dead",
+              "params": [
+                  {
+                      "type": "ByStr20",
+                      "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                      "vname": "burner"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                      "vname": "burn_account"
+                  },
+                  {
+                      "type": "Uint128",
+                      "value": "1000",
+                      "vname": "amount"
+                  }
+              ]
+          }
+      ],
+      "success": true,
+      "transitions": [
+          {
+              "addr": "0x197f930d30ad694a12475bd7c24ac7147b37dead",
+              "depth": 0,
+              "msg": {
+                  "_amount": "1000",
+                  "_recipient": "0x4978075dd607933122f4355b220915efa51e84c7",
+                  "_tag": "AddFunds",
+                  "params": []
+              }
+          }
+      ]
+  }
+
+  ```
+  </p>
+</details>
+
 ___
 
 ### transfer
@@ -323,8 +378,15 @@ Transfer the ZRC2 tokens to another wallet.
 
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
+**Usage**
+```
+const result = zilwrap.transfer("0x4978075dd607933122f4355B220915EFa51E84c7", "5"); // transfer 5 ZRC2 tokens
+```
+
+**Sample Response**
+
 <details>
-  <summary>Show Response</summary>
+  <summary>Show</summary>
   <p>
 
   ```json
@@ -416,11 +478,6 @@ Transfer the ZRC2 tokens to another wallet.
   </p>
 </details>
 
-**Usage**
-```
-const result = zilwrap.transfer("0x4978075dd607933122f4355B220915EFa51E84c7", "5"); // transfer 5 ZRC2 tokens
-```
-
 ___
 
 ### transferFrom
@@ -462,6 +519,117 @@ const zilwrap = new Zilwrap(Network.Testnet, 'approved_spender_private_key'); //
 const result = zilwrap.transferFrom("0x99f9d482abbdc5f05272a3c34a77e5933bb1c615", "0x1234567890123456789012345678901234567890", "10"); // transfer 10 tokens from "0x99f9..." to "0x1234"
 ```
 
+**Sample Response**
+
+<details>
+  <summary>Show</summary>
+  <p>
+
+  ```json
+  {
+      "accepted": false,
+      "cumulative_gas": 521,
+      "epoch_num": "29403",
+      "event_logs": [
+          {
+              "_eventname": "TransferFromSuccess",
+              "address": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "params": [
+                  {
+                      "type": "ByStr20",
+                      "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                      "vname": "initiator"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                      "vname": "sender"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                      "vname": "recipient"
+                  },
+                  {
+                      "type": "Uint128",
+                      "value": "50",
+                      "vname": "amount"
+                  }
+              ]
+          }
+      ],
+      "success": true,
+      "transitions": [
+          {
+              "addr": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "depth": 0,
+              "msg": {
+                  "_amount": "0",
+                  "_recipient": "0x4978075dd607933122f4355b220915efa51e84c7",
+                  "_tag": "RecipientAcceptTransferFrom",
+                  "params": [
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "initiator"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                          "vname": "sender"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                          "vname": "recipient"
+                      },
+                      {
+                          "type": "Uint128",
+                          "value": "50",
+                          "vname": "amount"
+                      }
+                  ]
+              }
+          },
+          {
+              "addr": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "depth": 0,
+              "msg": {
+                  "_amount": "0",
+                  "_recipient": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                  "_tag": "TransferFromSuccessCallBack",
+                  "params": [
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "initiator"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                          "vname": "sender"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                          "vname": "recipient"
+                      },
+                      {
+                          "type": "Uint128",
+                          "value": "50",
+                          "vname": "amount"
+                      }
+                  ]
+              }
+          }
+      ]
+  }
+  ```
+
+
+  </p>
+</details>
+
 ___
 
 ### increaseAllowance
@@ -481,8 +649,16 @@ Increase the allowance of an approved spender over the caller tokens. Only the t
 
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
+**Usage**
+```
+const zilwrap = new Zilwrap(Network.Testnet, 'token_holder_private_key'); // init default wallet
+const result = zilwrap.increaseAllowance("0x4978075dd607933122f4355b220915efa51e84c7", "500"); // permit user "0x4978" to transfer token holder tokens; limit up to 500 tokens
+```
+
+**Sample Response**
+
 <details>
-  <summary>Show Response</summary>
+  <summary>Show</summary>
   <p>
 
   ```json
@@ -520,12 +696,6 @@ Increase the allowance of an approved spender over the caller tokens. Only the t
 
   </p>
 </details>
-
-**Usage**
-```
-const zilwrap = new Zilwrap(Network.Testnet, 'token_holder_private_key'); // init default wallet
-const result = zilwrap.increaseAllowance("0x4978075dd607933122f4355b220915efa51e84c7", "500"); // permit user "0x4978" to transfer token holder tokens; limit up to 500 tokens
-```
 
 ___
 
