@@ -65,7 +65,7 @@ const zilwrap = new Zilwrap(Network.Testnet, 'private_key', settings);
 
 ### init
 
-**init()**
+- **init()**
 
 Setup essential parameters for the Zilwrap object, e.g. fetching the current gas price of the network.
 
@@ -256,6 +256,14 @@ Transfer using a allowance mechanism; allowing an approved spender to transfer t
 **Returns**
 
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
+
+<details>
+  <summary>**Sample Response**</summary>
+
+  ```
+  sadasdas
+  ```
+</details>
 
 **Usage**
 
