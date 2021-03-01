@@ -258,10 +258,92 @@ Transfer using a allowance mechanism; allowing an approved spender to transfer t
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 <details>
-  <summary>**Sample Response**</summary>
+  <summary><b>Sample Response</b></summary>
 
   ```
-  sadasdas
+  {
+      "accepted": true,
+      "cumulative_gas": 459,
+      "epoch_num": "28913",
+      "event_logs": [
+          {
+              "_eventname": "Minted",
+              "address": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "params": [
+                  {
+                      "type": "ByStr20",
+                      "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                      "vname": "minter"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                      "vname": "recipient"
+                  },
+                  {
+                      "type": "Uint128",
+                      "value": "10000000000000",
+                      "vname": "amount"
+                  }
+              ]
+          }
+      ],
+      "success": true,
+      "transitions": [
+          {
+              "addr": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "depth": 0,
+              "msg": {
+                  "_amount": "0",
+                  "_recipient": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                  "_tag": "RecipientAcceptMint",
+                  "params": [
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "minter"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "recipient"
+                      },
+                      {
+                          "type": "Uint128",
+                          "value": "10000000000000",
+                          "vname": "amount"
+                      }
+                  ]
+              }
+          },
+          {
+              "addr": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "depth": 0,
+              "msg": {
+                  "_amount": "0",
+                  "_recipient": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                  "_tag": "MintSuccessCallBack",
+                  "params": [
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "minter"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "recipient"
+                      },
+                      {
+                          "type": "Uint128",
+                          "value": "10000000000000",
+                          "vname": "amount"
+                      }
+                  ]
+              }
+          }
+      ]
+  }
   ```
 </details>
 
