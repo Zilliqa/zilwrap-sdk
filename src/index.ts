@@ -83,7 +83,11 @@ export class Zilwrap {
     this.contract = this.zilliqa.contracts.at(this.contractAddress);
   }
 
-  // set current gas price
+  /**
+   * Init
+   *
+   * Set current gas price
+   */
   public async init() {
     if (this.txParams.gasPrice.isZero()) {
       const minimumGasPrice = await this.zilliqa.blockchain.getMinimumGasPrice();
@@ -96,13 +100,18 @@ export class Zilwrap {
 
   /**
    * Check Allowance
+   *
+   * Retrieves the allowable tokens available for a list of approved spender or a particular approved spender.
+   * @param holder          token holder address in either bech32/checksum/base16 format
+   * @param approvedSpender optional approved spender address in either bech32/checksum/base16 format
+   * @returns JSON map containing the allowance mapping
    */
   public async checkAllowance(holder: string, approvedSpender?: string) {
     const tokenHolderAddress = this.sanitizeAddress(holder);
     const state = await this.contract.getSubState('allowances', [tokenHolderAddress]);
 
     const result: Allowance = {
-      allowances: [] as any,
+      allowances: [] as AllowanceMap[],
     };
 
     if (state === null || state.allowances === undefined || state.allowances[tokenHolderAddress] == undefined) {
@@ -130,6 +139,7 @@ export class Zilwrap {
 
   /**
    * Check Balance
+   *
    * Retrieves wrapped tokens balance from contract
    * @param address optional checksum wallet address to check for balance. If not supplied, the default wallet address is used
    * @returns wrapped tokens balance
@@ -159,8 +169,11 @@ export class Zilwrap {
   }
 
   /**
+   * Wrap
+   *
    * Wrap $ZIL to particular token
    * @param amount amount to be wrapped in ZIL
+   * @returns transaction receipt
    */
   public async wrap(amount: string): Promise<TxReceipt | undefined> {
     const amountQa = units.toQa(amount, units.Units.Zil);
@@ -192,8 +205,11 @@ export class Zilwrap {
   }
 
   /**
+   * Unwrap
+   *
    * Unwrap tokens and retrieve back $ZIL
-   * @param amount token amount to be unwrapped
+   * @param tokenAmount token amount to be unwrapped
+   * @returns transaction receipt
    */
   public async unwrap(tokenAmount: string): Promise<TxReceipt | undefined> {
     const burnAmountBN = new BN(tokenAmount);
@@ -228,8 +244,11 @@ export class Zilwrap {
 
   /**
    * Transfer
+   *
+   * Transfer the ZRC2 tokens to another wallet.
    * @param recipient bech32, checksum, base16 address
-   * @param amount actual number of tokens (not $ZIL!)
+   * @param amount    actual number of tokens (not $ZIL!)
+   * @returns transaction receipt
    */
   public async transfer(recipient: string, amount: string): Promise<TxReceipt | undefined> {
     const recipientAddress = this.sanitizeAddress(recipient);
@@ -268,9 +287,14 @@ export class Zilwrap {
 
   /**
    * TransferFrom
+   *
    * Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient.
    * Approved spender allowance is deducted.
    * Different implementation vs Transfer().
+   * @param sender    token holder wallet address to transfer from
+   * @param recipient recipient wallet address in either bech32/checksum/base16 format to transfer the ZRC2 tokens to.
+   * @param amount    number of ZRC2 tokens to transfer
+   * @returns transaction receipt
    */
   public async transferFrom(sender: string, recipient: string, amount: string): Promise<TxReceipt | undefined> {
     const senderAddress = this.sanitizeAddress(sender);
@@ -327,6 +351,7 @@ export class Zilwrap {
    * Only token holder allowed to invoke.
    * @param spender address of the designated approved spender in bech32/checksum/base16 forms
    * @amount amount number of tokens to be increased as allowance for the approved spender
+   * @returns transaction receipt
    */
   public async increaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined> {
     const spenderAddress = this.sanitizeAddress(spender);
@@ -358,6 +383,11 @@ export class Zilwrap {
 
   /**
    * Decrease Allowance
+   *
+   * Decrease the allowance of an approved spender. Only the token holder is allowed to invoke.
+   * @param spender address of the designated approved spender in bech32/checksum/base16 format.
+   * @param amount  number of ZRC2 tokens allowance to deduct from the approved spender.
+   * @returns transaction receipt
    */
   public async decreaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined> {
     // TODO check allowance
