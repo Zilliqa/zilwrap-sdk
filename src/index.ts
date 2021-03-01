@@ -18,7 +18,7 @@
 import { Zilliqa } from '@zilliqa-js/zilliqa';
 import { BN, Long, bytes, units, validation } from '@zilliqa-js/util';
 import { Contract } from '@zilliqa-js/contract';
-import { Transaction, TxReceipt } from '@zilliqa-js/account';
+import { TxReceipt } from '@zilliqa-js/account';
 import { getAddressFromPrivateKey, fromBech32Address } from '@zilliqa-js/crypto';
 import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT, GAS_PRICE } from './constants';
 
@@ -167,7 +167,6 @@ export class Zilwrap {
     );
 
     return callTx.getReceipt();
-    
   }
 
   /**
@@ -371,7 +370,7 @@ export class Zilwrap {
       1000,
       false,
     );
-    
+
     return callTx.getReceipt();
   }
 
@@ -394,15 +393,15 @@ export class Zilwrap {
       if (validation.isBech32(address)) {
         return fromBech32Address(address).toLowerCase();
       }
-  
+
       if (validation.isAddress(address)) {
         return address.toLowerCase();
       } else {
         throw new Error('Not a valid address');
       }
     }
-    
-    throw new Error("Address is empty");
+
+    throw new Error('Address is empty');
   }
 
   private sanitizeAmount(amount: string): string {

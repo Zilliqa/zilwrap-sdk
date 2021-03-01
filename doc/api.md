@@ -721,3 +721,45 @@ Decrease the allowance of an approved spender. Only the token holder is allowed 
 const zilwrap = new Zilwrap(Network.Testnet, 'token_holder_private_key'); // init default wallet
 const result = zilwrap.decreaseAllowance("0x4978075dd607933122f4355b220915efa51e84c7", "10"); // deduct approved spender "0x4978" allowance by 10 tokens.
 ```
+
+**Sample Response**
+
+<details>
+  <summary>Show</summary>
+  <p>
+
+  ```json
+  {
+      "accepted": false,
+      "cumulative_gas": 424,
+      "epoch_num": "2477641",
+      "event_logs": [
+          {
+              "_eventname": "DecreasedAllowance",
+              "address": "0x197f930d30ad694a12475bd7c24ac7147b37dead",
+              "params": [
+                  {
+                      "type": "ByStr20",
+                      "value": "0x99f9d482abbdc5f05272a3c34a77e5933bb1c615",
+                      "vname": "token_owner"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                      "vname": "spender"
+                  },
+                  {
+                      "type": "Uint128",
+                      "value": "465",
+                      "vname": "new_allowance"
+                  }
+              ]
+          }
+      ],
+      "success": true
+  }
+  ```
+
+
+  </p>
+</details>
