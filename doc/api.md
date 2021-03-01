@@ -321,9 +321,9 @@ Transfer the ZRC2 tokens to another wallet.
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 <details>
-  <summary><b>Show Response</b></summary>
-  <p></p>
-  ```
+  <summary>Show Response</summary>
+  <p>
+  ```json
   {
       "accepted": false,
       "cumulative_gas": 485,
@@ -408,6 +408,7 @@ Transfer the ZRC2 tokens to another wallet.
       ]
   }
   ```
+  </p>
 </details>
 
 **Usage**
