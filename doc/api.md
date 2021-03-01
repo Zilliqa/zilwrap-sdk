@@ -99,30 +99,49 @@ Retrieves the allowable tokens available for a list of approved spender or a par
 
 **Returns**
 
-`string` - if the approved spender address is not specified, the entire JSON mapping of approved spender-allowances for the token holder is returned. Otherwise, only the approved spender's allowance is returned.
+`string` - if the approved spender address is not specified, the entire JSON mapping of approved spender-allowances for the token holder is returned. Otherwise, only the approved spender's allowance portion is returned.
+
+```json
+{
+    "allowances": [
+        {
+            "<approved_spender_1_address>": "allowance_amount",
+            "<approved_spender_2_address>": "allowance_amount"
+        }
+    ]
+}
+```
 
 **Usage**
 
 *With approved spender*
 ```
 const result = zilwrap.checkAllowance("0x99f9d482abbdc5f05272a3c34a77e5933bb1c615", "0x13aa1c29698008e78801702be8a43527813ce892");
-console.log("spender allowance: %o", result);
+console.log(JSON.stringify(result, null, 4));
 
 // result
-spender allowance: 500
+{
+    "allowances": [
+        {
+            "0x13aa1c29698008e78801702be8a43527813ce892": "500"
+        }
+    ]
+}
 ```
 
 *Without approved spender*
 ```
 const result = zilwrap.checkAllowance("0x99f9d482abbdc5f05272a3c34a77e5933bb1c615");
-console.log(result);
+console.log(JSON.stringify(result, null, 4));
 
 // result
 {
-  "0x99f9d482abbdc5f05272a3c34a77e5933bb1c615": {
-    "0x4978075dd607933122f4355b220915efa51e84c7": "475",
-    "0x13aa1c29698008e78801702be8a43527813ce892": "500"
-  }
+    "allowances": [
+        {
+            "0x4978075dd607933122f4355b220915efa51e84c7": "475",
+            "0x13aa1c29698008e78801702be8a43527813ce892": "500"
+        }
+    ]
 }
 ```
 
@@ -142,14 +161,20 @@ Retrieves the wrapped token amount within the contract.
 
 **Returns**
 
-`string` - Returns a string representation of the token amount. If the address is not specified, the default wallet address is used to query.
+`string` - Returns a JSON string representation of the token amount. If the address is not specified, the default wallet address is used to query.
+
+```json
+{
+    "balance": "<token_amount>"
+}
+```
 
 **Usage**
 
 *With address*
 ```
 const result = zilwrap.checkBalance("0x99f9d482abbdc5f05272a3c34a77e5933bb1c615");
-console.log("wrapped token: %o", result);
+console.log("wrapped token: %o", result.balance);
 
 // result
 wrapped token: 10000000000000
@@ -159,11 +184,26 @@ wrapped token: 10000000000000
 ```
 const zilwrap = new Zilwrap(Network.Testnet, 'private_key'); // init default wallet
 const result = zilwrap.checkBalance(); // check balance using default wallet
-console.log("wrapped token: %o", result);
+console.log("wrapped token: %o", result.balance);
 
 // result
 wrapped token: 10000000000000
 ```
+
+**Sample Response**
+
+<details>
+  <summary>Show</summary>
+  <p>
+
+  ```json
+  {
+      "balances": "10028999999999985"
+  }
+  ```
+
+  </p>
+</details>
 
 ___
 

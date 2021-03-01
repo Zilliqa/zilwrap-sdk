@@ -26,6 +26,18 @@ import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIM
  * TODO: sanitize method params (address, amount, etc)
  */
 
+ export type Balance = {
+   balance: string;
+ }
+
+ interface AllowanceMap {
+   [key: string]: string
+ }
+
+ export type Allowance = {
+   allowances: AllowanceMap[];
+ }
+
 export type Settings = {
   contractAddress?: string;
   gasPrice?: number;
@@ -92,30 +104,46 @@ export class Zilwrap {
   public async checkAllowance(holder: string, approvedSpender?: string) {
     const tokenHolderAddress = this.sanitizeAddress(holder);
     const state = await this.contract.getSubState('allowances', [tokenHolderAddress]);
+    
+    const result:Allowance = {
+      allowances: [] as any
+    }
 
     if (state === null || state.allowances === undefined || state.allowances[tokenHolderAddress] == undefined) {
       throw new Error('Could not get allowance');
     }
 
     if (approvedSpender === undefined) {
-      return state.allowances[tokenHolderAddress];
-    } else {
-      const approvedSpenderAddress = this.sanitizeAddress(approvedSpender);
-      if (state.allowances[tokenHolderAddress][approvedSpenderAddress] === undefined) {
-        return '0';
-      }
-      return state.allowances[tokenHolderAddress][approvedSpenderAddress];
+      result.allowances.push(state.allowances[tokenHolderAddress]);
     }
+
+    if (approvedSpender !== undefined) {
+      const approvedSpenderAddress = this.sanitizeAddress(approvedSpender);
+      let allowance = "0";
+
+      if (state.allowances[tokenHolderAddress][approvedSpenderAddress] !== undefined) {
+        allowance = state.allowances[tokenHolderAddress][approvedSpenderAddress];
+      }
+      result.allowances.push({
+        [approvedSpenderAddress]: allowance
+      });
+    }
+
+    return result;
   }
 
   /**
    * Check Balance
-   * @param address optional checksum wallet address to check for balance. If not supplied, checks the default wallet address
+   * Retrieves wrapped tokens balance from contract
+   * @param address optional checksum wallet address to check for balance. If not supplied, the default wallet address is used
+   * @returns wrapped tokens balance
    */
-  // get wrapped tokens balance from contract
-  // returns wrapped tokens balance in Qa
   public async checkBalance(address?: string) {
     const state = await this.contract.getSubState('balances');
+
+    const result: Balance = {
+      balance: '0'
+    }
 
     let interestedWallet = '';
     if (address === undefined) {
@@ -127,13 +155,12 @@ export class Zilwrap {
 
     const hexWalletAddress = this.sanitizeAddress(interestedWallet);
     console.log('check balance: %o', hexWalletAddress);
-    // console.log("state balances: %o", state.balances);
 
-    if (state.balances === undefined || state.balances[hexWalletAddress] === undefined) {
-      return '0';
+    if (state.balances !== undefined && state.balances[hexWalletAddress] !== undefined) {
+      result.balance = state.balances[hexWalletAddress]
     }
 
-    return state.balances[hexWalletAddress];
+    return result;
   }
 
   /**
@@ -175,8 +202,8 @@ export class Zilwrap {
    */
   public async unwrap(tokenAmount: string): Promise<TxReceipt | undefined> {
     const burnAmountBN = new BN(tokenAmount);
-    const tokenBalance = await this.checkBalance();
-    const tokenBalanceBN = new BN(tokenBalance);
+    const balanceQuery = await this.checkBalance();
+    const tokenBalanceBN = new BN(balanceQuery.balance);
 
     if (tokenBalanceBN.lt(burnAmountBN)) {
       throw new Error('Insufficient token balance to unwrap');
@@ -210,8 +237,8 @@ export class Zilwrap {
   public async transfer(recipient: string, amount: string): Promise<TxReceipt | undefined> {
     const recipientAddress = this.sanitizeAddress(recipient);
     const transferAmountBN = new BN(amount);
-    const tokenBalance = await this.checkBalance();
-    const tokenBalanceBN = new BN(tokenBalance);
+    const balanceQuery = await this.checkBalance();
+    const tokenBalanceBN = new BN(balanceQuery.balance);
 
     if (tokenBalanceBN.lt(transferAmountBN)) {
       throw new Error('Insufficient token balance to transfer');
@@ -257,10 +284,10 @@ export class Zilwrap {
     // sender is token holder
     // the one invoking is the approved spender
     const transferAmountBN = new BN(amount);
-    const spenderAllowance = await this.checkAllowance(sender, spenderAddress);
-    const spenderAllowanceBN = new BN(spenderAllowance);
+    const allowanceQuery = await this.checkAllowance(sender, spenderAddress);
+    const spenderAllowanceBN = new BN(allowanceQuery.allowances[0][spenderAddress]);
 
-    console.log('spender allowance: %o', spenderAllowance);
+    console.log('spender allowance: %o', spenderAllowanceBN.toString());
 
     if (spenderAllowanceBN.lt(transferAmountBN)) {
       throw new Error('Insufficient allowance to initiate transfer on behalf of token holder');
@@ -341,8 +368,8 @@ export class Zilwrap {
     const spenderAddress = this.sanitizeAddress(spender);
 
     const deductAmountBN = new BN(amount);
-    const spenderAllowance = await this.checkAllowance(tokenHolderAddress, spenderAddress);
-    const spenderAllowanceBN = new BN(spenderAllowance);
+    const allowanceQuery = await this.checkAllowance(tokenHolderAddress, spenderAddress);
+    const spenderAllowanceBN = new BN(allowanceQuery.allowances[0][spenderAddress]);
 
     if (deductAmountBN.gt(spenderAllowanceBN)) {
       throw new Error('Insufficient spender allowance to decrease');

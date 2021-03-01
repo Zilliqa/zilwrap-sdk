@@ -6,6 +6,15 @@ import { Network } from './constants';
 /**
  * TODO: sanitize method params (address, amount, etc)
  */
+export declare type Balance = {
+    balance: string;
+};
+interface AllowanceMap {
+    [key: string]: string;
+}
+export declare type Allowance = {
+    allowances: AllowanceMap[];
+};
 export declare type Settings = {
     contractAddress?: string;
     gasPrice?: number;
@@ -27,12 +36,14 @@ export declare class Zilwrap {
     /**
      * Check Allowance
      */
-    checkAllowance(holder: string, approvedSpender?: string): Promise<any>;
+    checkAllowance(holder: string, approvedSpender?: string): Promise<Allowance>;
     /**
      * Check Balance
-     * @param address optional checksum wallet address to check for balance. If not supplied, checks the default wallet address
+     * Retrieves wrapped tokens balance from contract
+     * @param address optional checksum wallet address to check for balance. If not supplied, the default wallet address is used
+     * @returns wrapped tokens balance
      */
-    checkBalance(address?: string): Promise<any>;
+    checkBalance(address?: string): Promise<Balance>;
     /**
      * Wrap $ZIL to particular token
      * @param amount amount to be wrapped in ZIL
@@ -74,3 +85,4 @@ export declare class Zilwrap {
     private sanitizeAddress;
     private sanitizeAmount;
 }
+export {};
