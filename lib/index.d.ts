@@ -3,9 +3,6 @@
 import { BN, Long } from '@zilliqa-js/util';
 import { TxReceipt } from '@zilliqa-js/account';
 import { Network } from './constants';
-/**
- * TODO: sanitize method params (address, amount, etc)
- */
 export declare type Balance = {
     balance: string;
 };
@@ -80,7 +77,6 @@ export declare class Zilwrap {
      * Decrease Allowance
      */
     decreaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined>;
-    private addHex;
     private removeHex;
     private sanitizeAddress;
     private sanitizeAmount;

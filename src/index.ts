@@ -16,27 +16,23 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { Zilliqa } from '@zilliqa-js/zilliqa';
-import { BN, Long, bytes, units, validation } from '@zilliqa-js/util';
+import { BN, Long, units, validation } from '@zilliqa-js/util';
 import { Contract } from '@zilliqa-js/contract';
 import { TxReceipt } from '@zilliqa-js/account';
 import { getAddressFromPrivateKey, fromBech32Address } from '@zilliqa-js/crypto';
 import { Network, BLOCKCHAIN_URL, WRAPPER_CONTRACT, BLOCKCHAIN_VERSIONS, GAS_LIMIT, GAS_PRICE } from './constants';
 
-/**
- * TODO: sanitize method params (address, amount, etc)
- */
+export type Balance = {
+  balance: string;
+};
 
- export type Balance = {
-   balance: string;
- }
+interface AllowanceMap {
+  [key: string]: string;
+}
 
- interface AllowanceMap {
-   [key: string]: string
- }
-
- export type Allowance = {
-   allowances: AllowanceMap[];
- }
+export type Allowance = {
+  allowances: AllowanceMap[];
+};
 
 export type Settings = {
   contractAddress?: string;
@@ -104,10 +100,10 @@ export class Zilwrap {
   public async checkAllowance(holder: string, approvedSpender?: string) {
     const tokenHolderAddress = this.sanitizeAddress(holder);
     const state = await this.contract.getSubState('allowances', [tokenHolderAddress]);
-    
-    const result:Allowance = {
-      allowances: [] as any
-    }
+
+    const result: Allowance = {
+      allowances: [] as any,
+    };
 
     if (state === null || state.allowances === undefined || state.allowances[tokenHolderAddress] == undefined) {
       throw new Error('Could not get allowance');
@@ -119,13 +115,13 @@ export class Zilwrap {
 
     if (approvedSpender !== undefined) {
       const approvedSpenderAddress = this.sanitizeAddress(approvedSpender);
-      let allowance = "0";
+      let allowance = '0';
 
       if (state.allowances[tokenHolderAddress][approvedSpenderAddress] !== undefined) {
         allowance = state.allowances[tokenHolderAddress][approvedSpenderAddress];
       }
       result.allowances.push({
-        [approvedSpenderAddress]: allowance
+        [approvedSpenderAddress]: allowance,
       });
     }
 
@@ -142,8 +138,8 @@ export class Zilwrap {
     const state = await this.contract.getSubState('balances');
 
     const result: Balance = {
-      balance: '0'
-    }
+      balance: '0',
+    };
 
     let interestedWallet = '';
     if (address === undefined) {
@@ -154,10 +150,9 @@ export class Zilwrap {
     }
 
     const hexWalletAddress = this.sanitizeAddress(interestedWallet);
-    console.log('check balance: %o', hexWalletAddress);
 
     if (state.balances !== undefined && state.balances[hexWalletAddress] !== undefined) {
-      result.balance = state.balances[hexWalletAddress]
+      result.balance = state.balances[hexWalletAddress];
     }
 
     return result;
@@ -206,7 +201,9 @@ export class Zilwrap {
     const tokenBalanceBN = new BN(balanceQuery.balance);
 
     if (tokenBalanceBN.lt(burnAmountBN)) {
-      throw new Error('Insufficient token balance to unwrap');
+      throw new Error(
+        `Insufficient token balance to unwrap. Required: ${tokenAmount}, Current token balance: ${tokenBalanceBN.toString()}.`,
+      );
     }
 
     const callTx = await this.contract.call(
@@ -241,7 +238,7 @@ export class Zilwrap {
     const tokenBalanceBN = new BN(balanceQuery.balance);
 
     if (tokenBalanceBN.lt(transferAmountBN)) {
-      throw new Error('Insufficient token balance to transfer');
+      throw new Error(`Insufficient token balance to transfer. Required: ${amount}, Current token balance: ${tokenBalanceBN.toString()}.`);
     }
 
     const callTx = await this.contract.call(
@@ -287,10 +284,10 @@ export class Zilwrap {
     const allowanceQuery = await this.checkAllowance(sender, spenderAddress);
     const spenderAllowanceBN = new BN(allowanceQuery.allowances[0][spenderAddress]);
 
-    console.log('spender allowance: %o', spenderAllowanceBN.toString());
-
     if (spenderAllowanceBN.lt(transferAmountBN)) {
-      throw new Error('Insufficient allowance to initiate transfer on behalf of token holder');
+      throw new Error(
+        `Insufficient allowance to initiate transfer on behalf of token holder. Required: ${amount}, Current allowance: ${spenderAllowanceBN.toString()}`,
+      );
     }
 
     const callTx = await this.contract.call(
@@ -372,7 +369,9 @@ export class Zilwrap {
     const spenderAllowanceBN = new BN(allowanceQuery.allowances[0][spenderAddress]);
 
     if (deductAmountBN.gt(spenderAllowanceBN)) {
-      throw new Error('Insufficient spender allowance to decrease');
+      throw new Error(
+        `Insufficient spender allowance to decrease. Required: ${amount}, Current allowance: ${spenderAllowanceBN.toString()}`,
+      );
     }
 
     const callTx = await this.contract.call(
@@ -401,13 +400,6 @@ export class Zilwrap {
     return callTx.getReceipt();
   }
 
-  private addHex(address: string): string {
-    if (address.startsWith('0x')) {
-      return address.toLowerCase();
-    }
-    return `0x${address}`;
-  }
-
   private removeHex(address: string): string {
     if (address.startsWith('0x')) {
       return address.replace('0x', '').toLowerCase();
@@ -424,7 +416,7 @@ export class Zilwrap {
       if (validation.isAddress(address)) {
         return address.toLowerCase();
       } else {
-        throw new Error('Not a valid address');
+        throw new Error(`Not a valid address for Address: ${address}`);
       }
     }
 
