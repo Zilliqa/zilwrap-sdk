@@ -183,82 +183,8 @@ Wrap $ZIL to a ZRC2 token.
 
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
-**Usage**
-```
-await zilwrap.wrap("10"); // wrap 10 $ZIL
-```
-
-___
-
-### unwrap
-
-- **unwrap(`tokenAmount`: `string`)**: `Promise<TxReceipt | undefined>`
-
-Unwrap ZRC2 token to $ZIL.
-
-**Parameters**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `tokenAmount` | string | number of ZRC2 tokens to be converted to $ZIL. |
-
-**Returns**
-
-`Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
-
-**Usage**
-```
-await zilwrap.unwrap("10000000000000") // unwrapping the equivalent of 10 $ZI
-```
-
-___
-
-### transfer
-
-- **transfer(`recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
-
-Transfer the ZRC2 tokens to another wallet.
-
-**Parameters**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `recipient` | string | recipient wallet address in either bech32/checksum/base16 format to transfer the ZRC2 tokens to. |
-| `amount` | string | number of ZRC2 tokens to transfer |
-
-**Returns**
-
-`Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
-
-**Usage**
-```
-const result = zilwrap.transfer("0x4978075dd607933122f4355B220915EFa51E84c7", "5"); // transfer 5 ZRC2 tokens
-```
-
-___
-
-### transferFrom
-
-- **transferFrom(`sender`: `string`, `recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
-
-Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient. Approved spender allowance is deducted.
-
-**Note:** Different implementation vs [`transfer()`](api.md#transfer).
-
-**Parameters**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `sender` | string | token holder wallet address to transfer from |
-| `recipient` | string | recipient wallet address in either bech32/checksum/base16 format to transfer the ZRC2 tokens to. |
-| `amount` | string | number of ZRC2 tokens to transfer |
-
-**Returns**
-
-`Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
-
 <details>
-  <summary><b>Sample Response</b></summary>
+  <summary><b>Show Response</b></summary>
 
   ```
   {
@@ -346,6 +272,170 @@ Transfer using a allowance mechanism; allowing an approved spender to transfer t
   }
   ```
 </details>
+
+**Usage**
+```
+await zilwrap.wrap("10"); // wrap 10 $ZIL
+```
+
+___
+
+### unwrap
+
+- **unwrap(`tokenAmount`: `string`)**: `Promise<TxReceipt | undefined>`
+
+Unwrap ZRC2 token to $ZIL.
+
+**Parameters**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `tokenAmount` | string | number of ZRC2 tokens to be converted to $ZIL. |
+
+**Returns**
+
+`Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
+
+**Usage**
+```
+await zilwrap.unwrap("10000000000000") // unwrapping the equivalent of 10 $ZI
+```
+
+___
+
+### transfer
+
+- **transfer(`recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
+
+Transfer the ZRC2 tokens to another wallet.
+
+**Parameters**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `recipient` | string | recipient wallet address in either bech32/checksum/base16 format to transfer the ZRC2 tokens to. |
+| `amount` | string | number of ZRC2 tokens to transfer |
+
+**Returns**
+
+`Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
+
+<details>
+  <summary><b>Show Response</b></summary>
+  <p></p>
+  ```
+  {
+      "accepted": false,
+      "cumulative_gas": 485,
+      "epoch_num": "29168",
+      "event_logs": [
+          {
+              "_eventname": "TransferSuccess",
+              "address": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "params": [
+                  {
+                      "type": "ByStr20",
+                      "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                      "vname": "sender"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                      "vname": "recipient"
+                  },
+                  {
+                      "type": "Uint128",
+                      "value": "1000",
+                      "vname": "amount"
+                  }
+              ]
+          }
+      ],
+      "success": true,
+      "transitions": [
+          {
+              "addr": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "depth": 0,
+              "msg": {
+                  "_amount": "0",
+                  "_recipient": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                  "_tag": "RecipientAcceptTransfer",
+                  "params": [
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "sender"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                          "vname": "recipient"
+                      },
+                      {
+                          "type": "Uint128",
+                          "value": "1000",
+                          "vname": "amount"
+                      }
+                  ]
+              }
+          },
+          {
+              "addr": "0x26e4a2938ef5cd2dd49cafbfef6bc5289c88156b",
+              "depth": 0,
+              "msg": {
+                  "_amount": "0",
+                  "_recipient": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                  "_tag": "TransferSuccessCallBack",
+                  "params": [
+                      {
+                          "type": "ByStr20",
+                          "value": "0xac941274c3b6a50203cc5e7939b7dad9f32a0c12",
+                          "vname": "sender"
+                      },
+                      {
+                          "type": "ByStr20",
+                          "value": "0x825e09187276c167ea186b7ff17f09e2c2db5e17",
+                          "vname": "recipient"
+                      },
+                      {
+                          "type": "Uint128",
+                          "value": "1000",
+                          "vname": "amount"
+                      }
+                  ]
+              }
+          }
+      ]
+  }
+  ```
+</details>
+
+**Usage**
+```
+const result = zilwrap.transfer("0x4978075dd607933122f4355B220915EFa51E84c7", "5"); // transfer 5 ZRC2 tokens
+```
+
+___
+
+### transferFrom
+
+- **transferFrom(`sender`: `string`, `recipient`: `string`, `amount`: `string`)**: `Promise<TxReceipt | undefined>`
+
+Transfer using a allowance mechanism; allowing an approved spender to transfer tokens from another user wallet (sender) to the recipient. Approved spender allowance is deducted.
+
+**Note:** Different implementation vs [`transfer()`](api.md#transfer).
+
+**Parameters**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `sender` | string | token holder wallet address to transfer from |
+| `recipient` | string | recipient wallet address in either bech32/checksum/base16 format to transfer the ZRC2 tokens to. |
+| `amount` | string | number of ZRC2 tokens to transfer |
+
+**Returns**
+
+`Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 **Usage**
 
