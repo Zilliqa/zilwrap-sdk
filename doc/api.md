@@ -184,9 +184,10 @@ Wrap $ZIL to a ZRC2 token.
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
 
 <details>
-  <summary><b>Show Response</b></summary>
+  <summary>Show Response</summary>
+  <p>
 
-  ```
+  ```json
   {
       "accepted": true,
       "cumulative_gas": 459,
@@ -271,6 +272,8 @@ Wrap $ZIL to a ZRC2 token.
       ]
   }
   ```
+
+  </p>
 </details>
 
 **Usage**
@@ -323,6 +326,7 @@ Transfer the ZRC2 tokens to another wallet.
 <details>
   <summary>Show Response</summary>
   <p>
+
   ```json
   {
       "accepted": false,
@@ -407,6 +411,7 @@ Transfer the ZRC2 tokens to another wallet.
           }
       ]
   }
+
   ```
   </p>
 </details>
@@ -475,6 +480,46 @@ Increase the allowance of an approved spender over the caller tokens. Only the t
 **Returns**
 
 `Promise<TxReceipt | undefined>` - Transaction receipt after the transaction is confirmed onchain or undefined if connection error.
+
+<details>
+  <summary>Show Response</summary>
+  <p>
+
+  ```json
+  {
+      "accepted": false,
+      "cumulative_gas": 421,
+      "epoch_num": "2461601",
+      "event_logs": [
+          {
+              "_eventname": "IncreasedAllowance",
+              "address": "0x197f930d30ad694a12475bd7c24ac7147b37dead",
+              "params": [
+                  {
+                      "type": "ByStr20",
+                      "value": "0x99f9d482abbdc5f05272a3c34a77e5933bb1c615",
+                      "vname": "token_owner"
+                  },
+                  {
+                      "type": "ByStr20",
+                      "value": "0x4978075dd607933122f4355b220915efa51e84c7",
+                      "vname": "spender"
+                  },
+                  {
+                      "type": "Uint128",
+                      "value": "480",
+                      "vname": "new_allowance"
+                  }
+              ]
+          }
+      ],
+      "success": true
+  }
+  ```
+
+
+  </p>
+</details>
 
 **Usage**
 ```
