@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "test": "tsc && mocha lib/test/test.js --timeout 10000",
+    "test": "tsc ./test/test.ts && mocha test/test.js --timeout 10000",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix"
