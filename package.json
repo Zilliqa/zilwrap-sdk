@@ -5,7 +5,7 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsc && mocha lib/test/test.js --timeout 10000",
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --fix"
@@ -21,14 +21,17 @@
   },
   "homepage": "https://github.com/teye/zilwrap-sdk#readme",
   "devDependencies": {
+    "@types/mocha": "^8.2.1",
     "@types/websocket": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",
+    "mocha": "^8.3.0",
     "prettier": "^2.2.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.1.5",
+    "zilliqa-testing-library": "git+https://github.com/zilliqa/zilliqa-testing-library.git"
   },
   "dependencies": {
     "@zilliqa-js/zilliqa": "^2.2.0",
