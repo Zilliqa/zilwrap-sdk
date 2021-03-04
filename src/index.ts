@@ -63,7 +63,7 @@ export class Zilwrap {
 
     this.txParams.version = BLOCKCHAIN_VERSIONS[network];
 
-    console.log('Added account: %o', getAddressFromPrivateKey(privateKey));
+    // console.log('Added account: %o', getAddressFromPrivateKey(privateKey));
     this.walletAddress = getAddressFromPrivateKey(privateKey);
     this.contractAddress = WRAPPER_CONTRACT[network];
 
@@ -390,7 +390,6 @@ export class Zilwrap {
    * @returns transaction receipt
    */
   public async decreaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined> {
-    // TODO check allowance
     const tokenHolderAddress = this.sanitizeAddress(this.walletAddress);
     const spenderAddress = this.sanitizeAddress(spender);
 

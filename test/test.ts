@@ -150,6 +150,136 @@ describe('Zilwrap-testing', () => {
     await zilwrap.wrap('10'); // wrap 10 $ZIL
     assert.rejects(async () => await zilwrap.unwrap('20000000000000'), Error);
   });
+
+  it('should transfer tokens from sender to receipient', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10'); // wrap 10 $ZIL
+
+    // transfer to Account[1]
+    const result = await zilwrap.transfer(Test.accounts[1].address, '5000000000000');
+
+    const expectedLogs = JSON.parse(`
+    [
+        {
+            "_eventname": "TransferSuccess",
+            "address": "${deployedAddress.toLowerCase()}",
+            "params": [
+                {
+                    "type": "ByStr20",
+                    "value": "${Test.accounts[0].address.toLowerCase()}",
+                    "vname": "sender"
+                },
+                {
+                    "type": "ByStr20",
+                    "value": "${Test.accounts[1].address.toLowerCase()}",
+                    "vname": "recipient"
+                },
+                {
+                    "type": "Uint128",
+                    "value": "5000000000000",
+                    "vname": "amount"
+                }
+            ]
+        }
+    ]
+    `);
+
+    const deployed = Test.deployedContracts[deployedAddress];
+    const state = await deployed.getState();
+
+    assert(state.balances[Test.accounts[0].address.toLowerCase()] === '5000000000000');
+    assert(state.balances[Test.accounts[1].address.toLowerCase()] === '5000000000000');
+    assert(JSON.stringify(result.event_logs) === JSON.stringify(expectedLogs));
+  });
+
+  it('should return error when transfer more than available tokens', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10'); // wrap 10 $ZIL
+
+    // transfer to Account[1]
+    assert.rejects(async () => await zilwrap.transfer(Test.accounts[1].address, '20000000000000'), Error);
+  });
+
+  it('should increase allowance for approved spender', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+
+    const result = await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
+
+    const expectedLogs = JSON.parse(`
+    [
+        {
+            "_eventname": "IncreasedAllowance",
+            "address": "${deployedAddress.toLowerCase()}",
+            "params": [
+                {
+                    "type": "ByStr20",
+                    "value": "${Test.accounts[0].address.toLowerCase()}",
+                    "vname": "token_owner"
+                },
+                {
+                    "type": "ByStr20",
+                    "value": "${Test.accounts[1].address.toLowerCase()}",
+                    "vname": "spender"
+                },
+                {
+                    "type": "Uint128",
+                    "value": "10000000000000",
+                    "vname": "new_allowance"
+                }
+            ]
+        }
+    ]
+    `);
+
+    const deployed = Test.deployedContracts[deployedAddress];
+    const state = await deployed.getState();
+
+    assert(state.allowances[Test.accounts[0].address.toLowerCase()][Test.accounts[1].address.toLowerCase()] === '10000000000000');
+    assert(JSON.stringify(result.event_logs) === JSON.stringify(expectedLogs));
+  });
+
+  it('should decrease allowance for approved spender', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
+
+    const result = await zilwrap.decreaseAllowance(Test.accounts[1].address, '5000000000000');
+
+    const expectedLogs = JSON.parse(`
+    [
+        {
+            "_eventname": "DecreasedAllowance",
+            "address": "${deployedAddress.toLowerCase()}",
+            "params": [
+                {
+                    "type": "ByStr20",
+                    "value": "${Test.accounts[0].address.toLowerCase()}",
+                    "vname": "token_owner"
+                },
+                {
+                    "type": "ByStr20",
+                    "value": "${Test.accounts[1].address.toLowerCase()}",
+                    "vname": "spender"
+                },
+                {
+                    "type": "Uint128",
+                    "value": "5000000000000",
+                    "vname": "new_allowance"
+                }
+            ]
+        }
+    ]
+    `);
+
+    const deployed = Test.deployedContracts[deployedAddress];
+    const state = await deployed.getState();
+
+    assert(state.allowances[Test.accounts[0].address.toLowerCase()][Test.accounts[1].address.toLowerCase()] === '5000000000000');
+    assert(JSON.stringify(result.event_logs) === JSON.stringify(expectedLogs));
+  });
 });
 
 // remove test.js
