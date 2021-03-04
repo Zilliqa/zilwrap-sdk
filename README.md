@@ -9,15 +9,6 @@ npm install
 npm run build
 ```
 
-Configure the contracts address in `src/constants.ts`:
-```
-export const WRAPPER_CONTRACT: { [key in Networks]: string } = {
-  [Network.Mainnet]: '',
-  [Network.Testnet]: 'zil1r9lexrfs44555yj8t0tuyjk8z3an0h4dv2qv2l',
-  [Network.Isolated]: 'zil17qh89yvllqt63dwd4hexx758kcw8lu75z3hzzf',
-};
-```
-
 Initialize Zilwrap
 
 Create a new `example.js` file and import zilwrap:
@@ -26,7 +17,15 @@ const { Network } = require('./lib/constants');
 const Zilwrap = require('./lib/index').Zilwrap;
 
 async function main() {
-    const zilwrap = new Zilwrap(Network.Testnet, 'private_key');
+    // only declare those fields that you wish to override
+    const settings = {
+        contractAddress: "zil101234567890123456789012345678901234567",
+        gasPrice: 2000000000, // in Qa
+        gasLimit: 25000
+    }
+
+    // settings is optional
+    const zilwrap = new Zilwrap(Network.Testnet, 'private_key', settings);
 
     try {
         await zilwrap.init();
@@ -41,7 +40,31 @@ async function main() {
 main();
 ```
 
+## Deployment
+For npm distribution, configure the contracts address in `src/constants.ts`:
+```
+export const WRAPPER_CONTRACT: { [key in Networks]: string } = {
+  [Network.Mainnet]: '',
+  [Network.Testnet]: 'zil1r9lexrfs44555yj8t0tuyjk8z3an0h4dv2qv2l',
+  [Network.Isolated]: 'zil17qh89yvllqt63dwd4hexx758kcw8lu75z3hzzf',
+};
+```
 
 ## API Documentation
 
 Refer to [API Documentation](doc/api.md) for methods details.
+
+## Formatting
+
+```
+npm run lint
+npm run lint:fix
+```
+
+## Tests
+
+Unit tests are located at `test/test.ts`.
+
+```
+npm run test
+```
