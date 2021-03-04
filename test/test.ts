@@ -150,7 +150,6 @@ describe('Zilwrap-testing', () => {
     await zilwrap.wrap('10'); // wrap 10 $ZIL
     assert.rejects(async () => await zilwrap.unwrap('20000000000000'), Error);
   });
-
 });
 
 // remove test.js
