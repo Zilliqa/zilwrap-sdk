@@ -102,6 +102,12 @@ describe('Zilwrap-testing', () => {
     assert.rejects(async () => await zilwrap.wrap('9999'), Error, 'Insufficient $ZIL balance');
   });
 
+  it('should throw error when wrapped amount has alphabets', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    assert.rejects(async () => await zilwrap.wrap('1000abc'), Error);
+  });
+
   it('should unwrap binded token to $ZIL', async () => {
     const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
     await zilwrap.init();
@@ -148,6 +154,22 @@ describe('Zilwrap-testing', () => {
     await zilwrap.init();
     await zilwrap.wrap('10'); // wrap 10 $ZIL
     assert.rejects(async () => await zilwrap.unwrap('20000000000000'), Error);
+  });
+
+  it('should throw error when unwrapped tokens has alphabets', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10');
+
+    assert.rejects(async () => await zilwrap.unwrap('1000abc'), Error);
+  });
+  
+  it('should throw error when unwrapped tokens has decimals', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10');
+
+    assert.rejects(async () => await zilwrap.unwrap('0.1'), Error);
   });
 
   it('should transfer tokens from sender to receipient', async () => {
@@ -199,6 +221,22 @@ describe('Zilwrap-testing', () => {
 
     // transfer to Account[1]
     assert.rejects(async () => await zilwrap.transfer(Test.accounts[1].address, '20000000000000'), Error);
+  });
+
+  it('should throw error when transferred tokens has alphabets', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10'); // wrap 10 $ZIL
+
+    assert.rejects(async () => await zilwrap.transfer(Test.accounts[1].address, '1000abc'), Error);
+  });
+
+  it('should throw error when transferred tokens has decimals', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10'); // wrap 10 $ZIL
+
+    assert.rejects(async () => await zilwrap.transfer(Test.accounts[1].address, '0.1'), Error);
   });
 
   it('should increase allowance for approved spender', async () => {
@@ -287,6 +325,22 @@ describe('Zilwrap-testing', () => {
     assert.rejects(async () => await zilwrap.decreaseAllowance(Test.accounts[1].address, '20000000000000'), Error);
   });
 
+  it('should throw error when decreased allowance has alphabets', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
+
+    assert.rejects(async () => await zilwrap.decreaseAllowance(Test.accounts[1].address, '1000abc'), Error);
+  });
+
+  it('should throw error when decreased allowance has decimals', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
+
+    assert.rejects(async () => await zilwrap.decreaseAllowance(Test.accounts[1].address, '0.1'), Error);
+  });
+
   it('should transfer tokens via allowance mechanism from approved spender to recipient', async () => {
     const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
     await zilwrap.init();
@@ -353,6 +407,34 @@ describe('Zilwrap-testing', () => {
     assert.rejects(async () => await zilwrap1.transferFrom(Test.accounts[0].address, Test.accounts[2].address, '20000000000000'), Error);
   });
 
+  it('should throw error when transferred amount has alphabets in token amount', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10'); // wrap 10 $ZIL
+    await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
+
+    // switch to Account1
+    const zilwrap1 = new Zilwrap(Network.Isolated, Test.accounts[1].privateKey, { contractAddress: deployedAddress });
+    await zilwrap1.init();
+
+    // transfer 1000 token on behalf of Account0 to Account2
+    assert.rejects(async () => await zilwrap1.transferFrom(Test.accounts[0].address, Test.accounts[2].address, '1000abc'), Error);
+  });
+
+  it('should throw error when transferred amount has decimals in token amount', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+    await zilwrap.wrap('10'); // wrap 10 $ZIL
+    await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
+
+    // switch to Account1
+    const zilwrap1 = new Zilwrap(Network.Isolated, Test.accounts[1].privateKey, { contractAddress: deployedAddress });
+    await zilwrap1.init();
+
+    // transfer 1000 token on behalf of Account0 to Account2
+    assert.rejects(async () => await zilwrap1.transferFrom(Test.accounts[0].address, Test.accounts[2].address, '0.1'), Error);
+  });
+
   it('should return a JSON allowance map of the approved spender', async () => {
     const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
     await zilwrap.init();
@@ -383,11 +465,11 @@ describe('Zilwrap-testing', () => {
     await zilwrap.increaseAllowance(Test.accounts[2].address, '10000000000000');
 
     // add delay for next test to prevent errors
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const result = await zilwrap.checkAllowance(Test.accounts[0].address);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const expectedResult = JSON.parse(`
     {
@@ -422,6 +504,20 @@ describe('Zilwrap-testing', () => {
     `);
 
     assert(JSON.stringify(result) === JSON.stringify(expectedResult));
+  });
+
+  it('should throw error when increased allowance has alphabets', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+
+    assert.rejects(async () => await zilwrap.increaseAllowance(Test.accounts[1].address, '1000abc'), Error);
+  });
+
+  it('should throw error when increased allowance has decimals', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    await zilwrap.init();
+
+    assert.rejects(async () => await zilwrap.increaseAllowance(Test.accounts[1].address, '0.1'), Error);
   });
 
   it('should throw error if token holder cannot be found', async () => {

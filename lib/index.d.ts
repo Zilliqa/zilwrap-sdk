@@ -109,7 +109,8 @@ export declare class Zilwrap {
      */
     decreaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined>;
     private removeHex;
+    private isContainsAlphabets;
     private sanitizeAddress;
-    private sanitizeAmount;
+    private sanitizeAmountBN;
 }
 export {};

@@ -63,7 +63,6 @@ export class Zilwrap {
 
     this.txParams.version = BLOCKCHAIN_VERSIONS[network];
 
-    // console.log('Added account: %o', getAddressFromPrivateKey(privateKey));
     this.walletAddress = getAddressFromPrivateKey(privateKey);
     this.contractAddress = WRAPPER_CONTRACT[network];
 
@@ -176,6 +175,10 @@ export class Zilwrap {
    * @returns transaction receipt
    */
   public async wrap(amount: string): Promise<TxReceipt | undefined> {
+    if (this.isContainsAlphabets(amount)) {
+      throw new Error(`Not a valid amount for Amount: ${amount}`);
+    }
+
     const amountQa = units.toQa(amount, units.Units.Zil);
 
     // check sufficient balance
@@ -212,7 +215,7 @@ export class Zilwrap {
    * @returns transaction receipt
    */
   public async unwrap(tokenAmount: string): Promise<TxReceipt | undefined> {
-    const burnAmountBN = new BN(tokenAmount);
+    const burnAmountBN = this.sanitizeAmountBN(tokenAmount);
     const balanceQuery = await this.checkBalance();
     const tokenBalanceBN = new BN(balanceQuery.balance);
 
@@ -252,7 +255,7 @@ export class Zilwrap {
    */
   public async transfer(recipient: string, amount: string): Promise<TxReceipt | undefined> {
     const recipientAddress = this.sanitizeAddress(recipient);
-    const transferAmountBN = new BN(amount);
+    const transferAmountBN = this.sanitizeAmountBN(amount);
     const balanceQuery = await this.checkBalance();
     const tokenBalanceBN = new BN(balanceQuery.balance);
 
@@ -304,7 +307,7 @@ export class Zilwrap {
     // check allowance
     // sender is token holder
     // the one invoking is the approved spender
-    const transferAmountBN = new BN(amount);
+    const transferAmountBN = this.sanitizeAmountBN(amount);
     const allowanceQuery = await this.checkAllowance(sender, spenderAddress);
     const spenderAllowanceBN = new BN(allowanceQuery.allowances[0][spenderAddress]);
 
@@ -355,6 +358,7 @@ export class Zilwrap {
    */
   public async increaseAllowance(spender: string, amount: string): Promise<TxReceipt | undefined> {
     const spenderAddress = this.sanitizeAddress(spender);
+    this.sanitizeAmountBN(amount);
 
     const callTx = await this.contract.call(
       'IncreaseAllowance',
@@ -393,7 +397,7 @@ export class Zilwrap {
     const tokenHolderAddress = this.sanitizeAddress(this.walletAddress);
     const spenderAddress = this.sanitizeAddress(spender);
 
-    const deductAmountBN = new BN(amount);
+    const deductAmountBN = this.sanitizeAmountBN(amount);
     const allowanceQuery = await this.checkAllowance(tokenHolderAddress, spenderAddress);
     const spenderAllowanceBN = new BN(allowanceQuery.allowances[0][spenderAddress]);
 
@@ -436,6 +440,10 @@ export class Zilwrap {
     return address.toLowerCase();
   }
 
+  private isContainsAlphabets(input: string): boolean {
+      return /^[a-zA-Z]*$/.test(input);
+  }
+
   private sanitizeAddress(address: string): string {
     if (address) {
       if (validation.isBech32(address)) {
@@ -452,8 +460,12 @@ export class Zilwrap {
     throw new Error('Address is empty');
   }
 
-  private sanitizeAmount(amount: string): string {
+  // return a BN
+  private sanitizeAmountBN(amount: string): BN {
     // if amount is not digit, errors will show up when converting to BN
-    return new BN(amount).toString();
+    if (/^[0-9]*$/.test(amount) === false) {
+      throw new Error(`Not a valid amount for Amount: ${amount}`);
+    }
+    return new BN(amount);
   }
 }
