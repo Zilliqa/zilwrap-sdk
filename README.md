@@ -66,5 +66,6 @@ npm run lint:fix
 Unit tests are located at `test/test.ts`.
 
 ```
+npm run build
 npm run test
 ```
