@@ -163,7 +163,7 @@ describe('Zilwrap-testing', () => {
 
     assert.rejects(async () => await zilwrap.unwrap('1000abc'), Error);
   });
-  
+
   it('should throw error when unwrapped tokens has decimals', async () => {
     const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
     await zilwrap.init();

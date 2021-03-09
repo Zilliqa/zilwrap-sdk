@@ -441,7 +441,7 @@ export class Zilwrap {
   }
 
   private isContainsAlphabets(input: string): boolean {
-      return /^[a-zA-Z]*$/.test(input);
+    return /^[a-zA-Z]*$/.test(input);
   }
 
   private sanitizeAddress(address: string): string {
