@@ -23,11 +23,11 @@ export declare type TxParams = {
     gasLimit: Long;
 };
 export declare class Zilwrap {
-    private zilliqa;
-    private txParams;
-    private walletAddress;
-    private contractAddress;
-    private contract;
+    private readonly zilliqa;
+    private readonly txParams;
+    private readonly walletAddress;
+    private readonly contractAddress;
+    private readonly contract;
     constructor(network: Network, privateKey: string, settings?: Settings);
     /**
      * Init

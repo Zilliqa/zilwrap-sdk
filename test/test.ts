@@ -22,21 +22,32 @@ const fs = require('fs');
 const ZilTest = require('zilliqa-testing-library').default;
 const Test = new ZilTest();
 
-before(async () => {
-  console.log('setting up pre-test stuff...');
-  const contract = fs.readFileSync(__dirname + '/fixtures/token_contract.scilla', 'utf-8');
-
-  console.log('generating accounts...');
-  await Test.generateAccounts(3);
-  assert(Test.accounts.length === 3);
-
-  console.log('loading contract: %o', __dirname + '/fixtures/token_contract.scilla');
-  await Test.loadContract(contract);
-  assert(Test.contracts.length === 1);
-});
+let deployedAddress = "";
 
 describe('Zilwrap-testing', () => {
-  let deployedAddress = '';
+
+  before(async () => {
+    console.log('setting up pre-test stuff...');
+    const contract = fs.readFileSync(__dirname + '/fixtures/token_contract.scilla', 'utf-8');
+  
+    console.log('generating accounts...');
+    await Test.generateAccounts(3);
+    assert(Test.accounts.length === 3);
+  
+    console.log('loading contract: %o', __dirname + '/fixtures/token_contract.scilla');
+    await Test.loadContract(contract);
+    assert(Test.contracts.length === 1);
+  });
+  
+  // remove test.js
+  after(async () => {
+    try {
+      console.log('cleaning up tests remnants...');
+      fs.unlinkSync(__dirname + '/test.js');
+    } catch (err) {
+      console.error(err);
+    }
+  });
 
   // deploy new token contract before each test case
   beforeEach(async () => {
@@ -53,6 +64,25 @@ describe('Zilwrap-testing', () => {
     assert(tx.receipt.success === true, 'Transaction failed');
 
     deployedAddress = deployed.address;
+  });
+
+  afterEach(() => {
+    deployedAddress = "";
+  });
+
+  it('should allow change contract address on isolated server', async () => {
+    const zilwrap = new Zilwrap(Network.Isolated, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    assert(zilwrap.contractAddress === deployedAddress);
+  });
+
+  it('should not change contract address on testnet', async () => {
+    const zilwrap = new Zilwrap(Network.Testnet, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    assert(zilwrap.contractAddress !== deployedAddress);
+  });
+
+  it('should not change contract address on mainnet', async () => {
+    const zilwrap = new Zilwrap(Network.Mainnet, Test.accounts[0].privateKey, { contractAddress: deployedAddress });
+    assert(zilwrap.contractAddress !== deployedAddress);
   });
 
   it('should wrap $ZIL to token', async () => {
@@ -453,9 +483,6 @@ describe('Zilwrap-testing', () => {
     `);
 
     assert(JSON.stringify(result) === JSON.stringify(expectedResult));
-
-    // add delay for next test to prevent errors
-    await new Promise((resolve) => setTimeout(resolve, 2000));
   });
 
   it('should return the list of approved spenders when not specified', async () => {
@@ -464,12 +491,7 @@ describe('Zilwrap-testing', () => {
     await zilwrap.increaseAllowance(Test.accounts[1].address, '10000000000000');
     await zilwrap.increaseAllowance(Test.accounts[2].address, '10000000000000');
 
-    // add delay for next test to prevent errors
-    await new Promise((resolve) => setTimeout(resolve, 3000));
-
     const result = await zilwrap.checkAllowance(Test.accounts[0].address);
-
-    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const expectedResult = JSON.parse(`
     {
@@ -482,7 +504,10 @@ describe('Zilwrap-testing', () => {
     }
     `);
 
-    assert(JSON.stringify(result) === JSON.stringify(expectedResult));
+    const result1 = JSON.stringify(result);
+    const expectedResult1 = JSON.stringify(expectedResult);
+
+    assert(result1 === expectedResult1);
   });
 
   it('should return 0 allowance if approved spender is declared but not found', async () => {
@@ -605,14 +630,5 @@ describe('Zilwrap-testing', () => {
     await zilwrap.init();
     assert.rejects(async () => await zilwrap.checkBalance('abc123'), Error);
   });
-});
 
-// remove test.js
-after(async () => {
-  try {
-    console.log('cleaning up tests remnants...');
-    fs.unlinkSync(__dirname + '/test.js');
-  } catch (err) {
-    console.error(err);
-  }
 });

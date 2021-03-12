@@ -47,15 +47,15 @@ export type TxParams = {
 };
 
 export class Zilwrap {
-  private zilliqa: Zilliqa;
-  private txParams: TxParams = {
+  private readonly zilliqa: Zilliqa;
+  private readonly txParams: TxParams = {
     version: 99999,
     gasPrice: new BN(GAS_PRICE),
     gasLimit: Long.fromNumber(GAS_LIMIT),
   };
-  private walletAddress: string;
-  private contractAddress: string; // wrapper address
-  private contract: Contract;
+  private readonly walletAddress: string;
+  private readonly contractAddress: string; // wrapper address
+  private readonly contract: Contract;
 
   constructor(network: Network, privateKey: string, settings?: Settings) {
     this.zilliqa = new Zilliqa(BLOCKCHAIN_URL[network]);
@@ -68,7 +68,7 @@ export class Zilwrap {
 
     // override default settings
     if (settings) {
-      if (settings.contractAddress && this.sanitizeAddress(settings.contractAddress)) {
+      if (network === Network.Isolated && settings.contractAddress && this.sanitizeAddress(settings.contractAddress)) {
         this.contractAddress = settings.contractAddress;
       }
       if (settings.gasPrice && settings.gasPrice > 0) {
