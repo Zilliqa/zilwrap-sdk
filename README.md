@@ -19,7 +19,6 @@ const Zilwrap = require('./lib/index').Zilwrap;
 async function main() {
     // only declare those fields that you wish to override
     const settings = {
-        contractAddress: "zil101234567890123456789012345678901234567",
         gasPrice: 2000000000, // in Qa
         gasLimit: 25000
     }

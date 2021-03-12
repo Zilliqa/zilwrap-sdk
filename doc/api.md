@@ -30,11 +30,10 @@ Initialize a new Zilwrap object with a default wallet.
 | ---- | ---- | ----------- |
 | `network` | Network | blockchain network, available options: `Network.Mainnet`, `Network.Testnet`. |
 | `privateKey` | string | user's wallet private key to interact with. |
-| `settings` (optional) | Settings | Override the default settings for the wrapper contract address, gas price or gas limit. See 'Usage' section for more details. |
+| `settings` (optional) | Settings | Override the default settings for the gas price or gas limit. See 'Usage' section for more details. |
 
 ```
 settings = {
-  contractAddress?: string,
   gasPrice?: number,
   gasLimit: number
 }
@@ -53,7 +52,6 @@ const zilwrap = new Zilwrap(Network.Testnet, 'private_key');
 // only declare those fields that you wish to override
 
 const settings = {
-  contractAddress: "zil101234567890123456789012345678901234567",
   gasPrice: 2000000000, // in Qa
   gasLimit: 25000
 }
