@@ -49,6 +49,12 @@ export const WRAPPER_CONTRACT: { [key in Networks]: string } = {
 };
 ```
 
+## Deployed contracts
+
+! Network ! Address !
+| Testnet | zil1x9hgf0rle7kgrfzpetyqgkpy997wcfxwtjsamq |
+| Mainnet | zil1gvr0jgwfsfmxsyx0xsnhtlte4gks6r3yk8x5fn |
+
 ## API Documentation
 
 Refer to [API Documentation](doc/api.md) for methods details.
